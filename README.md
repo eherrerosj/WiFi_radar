@@ -5,6 +5,7 @@
 ##Características:##
 -Nodos de captura
 Foneras 2.0n flasheadas, OpenWRT, bash (configuración, captura, tx trazas al servidor, control espacio), tcpdump, sshfs, dropbear, ntpclient.
+
 -Servidor: debian, bash, python (procesado trazas con eliminación de solapamientos, control nodos), scapy (libreria para manejo de paquetes en python), admin lte (plantilla frontend), django (backend), highcharts (gráficos front), hypertree (gráfico en forma de disco front).
 
 
