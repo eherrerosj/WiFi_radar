@@ -1,13 +1,14 @@
 # WiFi_radar
 **Herramienta para monitorización, análisis y visualización de tráfico WiFi.**
 *TFG de Enrique Herreros. 2014. Grado en Ingeniería de Sistemas de Comunicaciones. Universidad Carlos III de Madrid*
+
 Demo: https://www.youtube.com/watch?v=-S5T10gVhN8
 
 ##Características:##
--Nodos de captura
+- Nodos de captura
 Foneras 2.0n flasheadas, OpenWRT, bash (configuración, captura, tx trazas al servidor, control espacio), tcpdump, sshfs, dropbear, ntpclient.
 
--Servidor: debian, bash, python (procesado trazas con eliminación de solapamientos, control nodos), scapy (libreria para manejo de paquetes en python), admin lte (plantilla frontend), django (backend), highcharts (gráficos front), hypertree (gráfico en forma de disco front).
+- Servidor: debian, bash, python (procesado trazas con eliminación de solapamientos, control nodos), scapy (libreria para manejo de paquetes en python), admin lte (plantilla frontend), django (backend), highcharts (gráficos front), hypertree (gráfico en forma de disco front).
 
 
 ##Descripción general:##
