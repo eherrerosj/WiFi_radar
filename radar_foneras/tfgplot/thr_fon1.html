@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>WiFi-Radar | EHJ TFG</title>
+
+
+
+
+
+  <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+  <!-- bootstrap 3.0.2 -->
+  <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+  <!-- font Awesome -->
+  <link href="/static/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+  <!-- Ionicons -->
+  <link href="/static/css/ionicons.min.css" rel="stylesheet" type="text/css" />
+  <!-- Morris chart -->
+  <link href="/static/css/morris/morris.css" rel="stylesheet" type="text/css" />
+  <!-- jvectormap -->
+  <link href="/static/css/jvectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
+  <!-- fullCalendar -->
+  <link href="/static/css/fullcalendar/fullcalendar.css" rel="stylesheet" type="text/css" />
+  <!-- Daterange picker -->
+  <link href="/static/css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />
+  <!-- bootstrap wysihtml5 - text editor -->
+  <link href="/static/css/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css" rel="stylesheet" type="text/css" />
+  <!-- Theme style -->
+  <link href="/static/css/AdminLTE.css" rel="stylesheet" type="text/css" />
+
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+          <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+          <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+          <![endif]-->
+
+
+          <link type="text/css" href="/static/base.css" rel="stylesheet" />
+          <link type="text/css" href="/static/Hypertree.css" rel="stylesheet" />
+          <link type="text/css" href="/static/tablas.css" rel="stylesheet" />
+          <link type="text/css" href="/static/menu.css" rel="stylesheet" /> 
+
+
+          <!-- jQuery 2.0.2 -->
+          <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+          <!-- jQuery UI 1.10.3 -->
+          <script src="/static/js/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
+          <!-- Bootstrap -->
+          <script src="/static/js/bootstrap.min.js" type="text/javascript"></script>
+          <!-- Morris.js charts -->
+          <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+          <script src="/static/js/plugins/morris/morris.min.js" type="text/javascript"></script>
+          <!-- Sparkline -->
+          <script src="/static/js/plugins/sparkline/jquery.sparkline.min.js" type="text/javascript"></script>
+          <!-- jvectormap -->
+          <script src="/static/js/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js" type="text/javascript"></script>
+          <script src="/static/js/plugins/jvectormap/jquery-jvectormap-world-mill-en.js" type="text/javascript"></script>
+          <!-- fullCalendar -->
+          <script src="/static/js/plugins/fullcalendar/fullcalendar.min.js" type="text/javascript"></script>
+          <!-- jQuery Knob Chart -->
+          <script src="/static/js/plugins/jqueryKnob/jquery.knob.js" type="text/javascript"></script>
+          <!-- daterangepicker -->
+          <script src="/static/js/plugins/daterangepicker/daterangepicker.js" type="text/javascript"></script>
+          <!-- Bootstrap WYSIHTML5 -->
+          <script src="/static/js/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js" type="text/javascript"></script>
+          <!-- iCheck -->
+          <script src="/static/js/plugins/iCheck/icheck.min.js" type="text/javascript"></script>
+
+          <!-- AdminLTE App -->
+          <script src="/static/js/AdminLTE/app.js" type="text/javascript"></script>
+
+          <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+          <script src="/static/js/AdminLTE/dashboard.js" type="text/javascript"></script>
+          <!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script> -->
+          <script src="http://code.highcharts.com/highcharts.js"></script>
+          <script src="http://code.highcharts.com/highcharts-more.js" type="text/javascript"></script>
+          <script src="http://code.highcharts.com/modules/exporting.js" type="text/javascript"></script>
+          <script src="http://code.highcharts.com/modules/data.js"></script>
+          <script language="javascript" type="text/javascript" src="/static/highcharts_tema.js"></script>
+          <script language="javascript" type="text/javascript" src="/static/jit.js"></script>
+          <script language="javascript" type="text/javascript" src="/static/jquery.bpopup.min.js"></script>
+
+
+
+        </head>
+        <body class="skin-blue">
+
+          <!-- header logo: style can be found in header.less -->
+          <header class="header">
+            <a href="boot.html" class="logo">
+              <!-- Add the class icon to your logo image or logo icon to add the margining -->
+              WiFi - RADAR
+            </a>
+            <!-- Header Navbar: style can be found in header.less -->
+            <nav class="navbar navbar-static-top" role="navigation">
+              <!-- Sidebar toggle button-->
+              <a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas" role="button">
+                <span class="sr-only">Toggle navigation</span>
+              </a>
+              <!-- Autor -->
+              <div class="navbar-right">
+                <h2 style="margin-right: 140px;">TFG Enrique Herreros</h2>
+              </div>
+            </nav>
+          </header>
+          <div class="wrapper row-offcanvas row-offcanvas-left">
+            <!-- Left side column. contains the logo and sidebar -->
+            <aside class="left-side sidebar-offcanvas">
+              <!-- sidebar: style can be found in sidebar.less -->
+              <section class="sidebar">
+
+                <ul class="sidebar-menu">
+                  <li>
+                    <a href="http://escorpion.it.uc3m.es/">
+                      <small class="badge pull-left bg-aqua"><i class="fa fa-dashboard fa-lg"></i></small> <span>Estado de los nodos</span>
+                    </a>
+                  </li>
+                  <li class="treeview active">
+                    <a href="#">
+                      <small class="badge pull-left bg-aqua"><i class="fa fa-bar-chart-o fa-lg"></i></small>
+                      <span>Throughput</span>
+                      <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                      <li class="active"><a href="http://escorpion.it.uc3m.es/thr_fon1/"><i class="fa fa-angle-double-right"></i> Fonera 1</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/thr_fon2/"><i class="fa fa-angle-double-right"></i> Fonera 2</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/thr_fon3/"><i class="fa fa-angle-double-right"></i> Fonera 3</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/thr_fon4"><i class="fa fa-angle-double-right"></i> Fonera 4</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/thr_fon5"><i class="fa fa-angle-double-right"></i> Fonera 5</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/thr_fon6"><i class="fa fa-angle-double-right"></i> Fonera 6</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/thr_fon7"><i class="fa fa-angle-double-right"></i> Fonera 7</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/thr_fon8"><i class="fa fa-angle-double-right"></i> Fonera 8</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/thr_fon9"><i class="fa fa-angle-double-right"></i> Fonera 9</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/thr_fon10"><i class="fa fa-angle-double-right"></i> Fonera 10</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/thr_fon11"><i class="fa fa-angle-double-right"></i> Fonera 11</a></li>
+                    </ul>
+                  </li>
+                  <li class="treeview">
+                    <a href="#">
+                      <small class="badge pull-left bg-aqua"><i class="fa fa-table"></i></small> <span>Tablas AP - Clientes</span>
+                      <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                      <li><a href="http://escorpion.it.uc3m.es/tab_fon1"><i class="fa fa-angle-double-right"></i> Fonera 1</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/tab_fon2"><i class="fa fa-angle-double-right"></i> Fonera 2</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/tab_fon3"><i class="fa fa-angle-double-right"></i> Fonera 3</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/tab_fon4"><i class="fa fa-angle-double-right"></i> Fonera 4</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/tab_fon5"><i class="fa fa-angle-double-right"></i> Fonera 5</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/tab_fon6"><i class="fa fa-angle-double-right"></i> Fonera 6</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/tab_fon7"><i class="fa fa-angle-double-right"></i> Fonera 7</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/tab_fon8"><i class="fa fa-angle-double-right"></i> Fonera 8</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/tab_fon9"><i class="fa fa-angle-double-right"></i> Fonera 9</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/tab_fon10"><i class="fa fa-angle-double-right"></i> Fonera 10</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/tab_fon11"><i class="fa fa-angle-double-right"></i> Fonera 11</a></li>
+                    </ul>
+                  </li>
+                  <li class="treeview">
+                    <a href="#">
+                      <small class="badge pull-left bg-aqua"><i class="fa fa-sitemap"></i></small>
+                      <span>Gráfico AP - Clientes</span>
+                      <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                      <li><a href="http://escorpion.it.uc3m.es/jit_fon1"><i class="fa fa-angle-double-right"></i> Fonera 1</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/jit_fon2"><i class="fa fa-angle-double-right"></i> Fonera 2</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/jit_fon3"><i class="fa fa-angle-double-right"></i> Fonera 3</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/jit_fon4"><i class="fa fa-angle-double-right"></i> Fonera 4</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/jit_fon5"><i class="fa fa-angle-double-right"></i> Fonera 5</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/jit_fon6"><i class="fa fa-angle-double-right"></i> Fonera 6</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/jit_fon7"><i class="fa fa-angle-double-right"></i> Fonera 7</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/http://escorpion.it.uc3m.es/jit_fon8"><i class="fa fa-angle-double-right"></i> Fonera 8</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/jit_fon9"><i class="fa fa-angle-double-right"></i> Fonera 9</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/jit_fon10"><i class="fa fa-angle-double-right"></i> Fonera 10</a></li>
+                      <li><a href="http://escorpion.it.uc3m.es/jit_fon11"><i class="fa fa-angle-double-right"></i> Fonera 11</a></li>
+                    </ul>
+                  </li>
+
+                </ul>
+              </section>
+              <!-- /.sidebar -->
+            </aside>
+
+            <!-- Right side column. Contains the navbar and content of the page -->
+            <aside class="right-side">
+              <!-- Content Header (Page header) -->
+              <section class="content-header">
+                <h1>
+                  Inicio
+                  <small>Estado de los nodos</small>
+                </h1>
+                <ol class="breadcrumb">
+                  <li><a href="#"><i class="fa fa-bar-chart-o"></i> Throughput > Fonera 1</a></li>
+                  <!-- <li class="active">Inicio</li> -->
+                </ol>
+              </section>
+
+              <!-- Main content -->
+              <section class="content">
+
+                <!-- /.row -->
+
+                <!-- Main row -->
+                <div class="row">
+
+
+                  <script type="text/javascript">
+                  {% autoescape off %}
+                  ;(function($) {
+                    $(function() {
+                      $('#buttonMAP').bind('click', function(f1) {
+                        f1.preventDefault();
+                        $('#mapa').bPopup();
+                      });
+                    });
+                  })(jQuery);
+                  {% endautoescape %}
+                  </script>
+
+                  <div id="mapa" style="display:none; margin: 0 auto"><img src="/static/plano1.jpg"   alt="Plano de la planta" usemap="#imgmap201451218219">
+                    <map id="imgmap201451218219" name="imgmap201451218219">
+                      <area shape="circle" id="fon6" alt="Fonera 6" title="Fonera 6" coords="162,118,30" href="#" target="" />
+                      <area shape="circle" id="fon2" alt="Fonera 2" title="Fonera 2" coords="322,50,29" href="#" target="" /><area shape="circle" id="fon7" alt="Fonera 7" title="Fonera 7" coords="418,52,29" href="" target="" />
+                      <area shape="circle" id="fon8" alt="Fonera 8" title="Fonera 8" coords="375,120,29" href="#" target="" />
+                      <area shape="circle" id="fon9" alt="Fonera 9" title="Fonera 9" coords="308,184,38" href="#" target="" />
+                      <area shape="circle" id="fon4" alt="Fonera 4" title="Fonera 4" coords="128,458,28" href="#" target="" />
+                      <area shape="circle" id="fon11" alt="Fonera 11" title="Fonera 11" coords="103,539,31" href="#" target="" />
+                      <area shape="circle" id="fon5" alt="Fonera 5" title="Fonera 5" coords="399,564,28" href="#" target="" />
+                      <area shape="circle" id="fon10" alt="Fonera 10" title="Fonera 10" coords="455,568,25" href="#" target="" />
+                      <area shape="circle" id="fon1" alt="Fonera 1" title="Fonera 1" coords="360,639,28" href="#" target="" />
+                      <area shape="circle" id="fon3" alt="Fonera 3" title="Fonera 3" coords="467,640,28" href="#" target="" /></map>></div>
+
+                      <div class="col-md-12">
+                        <div class="box box-danger" id="loading-example">
+                          <div class="box-header">
+                            <i class="fa fa-cloud"></i>
+                            <h3 class="box-title">Gráfica de throughput medio para la Fonera 1</h3>
+                          </div><!-- /.box-header -->
+
+                          {# Opción theme de tabla del estado de las foneras #}
+                          <div class="row">
+                            <div class="col-xs-12">
+                              <div class="box">
+                                <div class="box-body no-padding">
+                                  <!-- Grafica para los canales en cada color. Zoomable. Media de grupos de 6 valores para tener efecto smooth. -->
+                                  <div id="containerAVG2" style="min-width: 310px; height: 400px; margin:1em"></div>
+                                  <script type="text/javascript">
+                                  {% autoescape off %}
+                                  $(function () {
+                                    $(document).ready(function () {
+                                      $('#containerAVG2').highcharts({
+                                        chart: {
+                                          zoomType: 'x',
+                                          type: 'spline'
+                                        },
+                                        title: {
+                                          text: 'Throughput MEDIO para Fonera 1'
+                                        },
+                                        subtitle: {
+                                          text: 'Media en grupos de 6 muestras'
+                                        },
+                                        xAxis: {
+                                          title: {
+                                            text: 'Fecha'
+                                          },
+                                          type: 'datetime',
+                dateTimeLabelFormats: { // don't display the dummy year
+                month: '%e. %b',
+                year: '%b'
+              }
+            },
+            plotOptions: {
+              spline: {
+                lineWidth: 1,
+                marker: {
+                  enabled: false
+                },
+                shadow: false,
+                states: {
+                  hover: {
+                    lineWidth: 2
+                  }
+                },
+                    //threshold: null
+                  }
+                },
+                yAxis: {
+                  title: {
+                    text: 'Throughput (kbps)'
+                  },
+                  min: 0,
+                  max: 1500
+                //maxPadding: 0.04
+              },
+              tooltip: {
+                formatter: function() {
+                  return '<b>'+ this.series.name +'</b><br/>'+
+                  Highcharts.dateFormat('%e/%b %H:%M', this.x) + ' (' + this.y + ' kbps)';
+                }
+              },
+              series: [{
+                lineWidth: 1,
+                name: 'Canal 11',
+                data: [{% for avg, momento in avgs_11 %}[Date.UTC({{ momento|date:"Y"}},{{ momento|date:"m"}}-1,{{ momento|date:"j, G, i" }}), {{ avg }}], {% endfor %}]
+              }, {
+                lineWidth: 1,
+                name: 'Canal 6',
+                data: [{% for avg, momento in avgs_6 %}[Date.UTC({{ momento|date:"Y"}},{{ momento|date:"m"}}-1,{{ momento|date:"j, G, i" }}), {{ avg }}], {% endfor %}]
+              }, {
+                lineWidth: 1,
+                name: 'Canal 1',
+                data: [{% for avg, momento in avgs_1 %}[Date.UTC({{ momento|date:"Y"}},{{ momento|date:"m"}}-1,{{ momento|date:"j, G, i" }}), {{ avg }}], {% endfor %}]
+              }]
+            });
+    // var chart = $('#containerAVG11').highcharts();
+    // chart.redraw();
+  });
+$('#buttonUD').click(function() {
+  var chart = $('#containerAVG2').highcharts();
+  var currentDate = new Date();
+  var hours = currentDate.getHours();
+  var day = currentDate.getDate();
+  var month = currentDate.getMonth() + 1;
+  var year = currentDate.getFullYear();
+          var diferencia = (1)*(24*3600*1000); // primer numero es el numero de dias de rango que queremos ver de sin zoom
+          var t2 = new Date(currentDate.getTime() - diferencia);
+          chart.xAxis[0].setExtremes(Date.UTC(t2.getFullYear(), t2.getMonth(), t2.getDate(), t2.getHours()), Date.UTC(year, month-1, day, hours));
+        });
+$('#buttonUS').click(function() {
+  var chart = $('#containerAVG2').highcharts();
+  var currentDate = new Date();
+  var hours = currentDate.getHours();
+  var day = currentDate.getDate();
+  var month = currentDate.getMonth() + 1;
+  var year = currentDate.getFullYear();
+          var diferencia = (7)*(24*3600*1000); // primer numero es el numero de dias de rango que queremos ver de sin zoom
+          var t2 = new Date(currentDate.getTime() - diferencia);
+          chart.xAxis[0].setExtremes(Date.UTC(t2.getFullYear(), t2.getMonth(), t2.getDate(), t2.getHours()), Date.UTC(year, month-1, day, hours));
+        });
+});
+{% endautoescape %}
+</script>
+<button id="buttonUS" class="autocompare">Ajustar a última semana</button>
+<button id="buttonUD" class="autocompare">Ajustar a último día</button>
+<button id="buttonMAP">Mostrar plano</button>
+</div><!-- /.box-body -->
+</div><!-- /.box -->
+</div>
+</div>
+
+
+</div><!-- /.box --> 
+</div>
+
+
+
+
+
+{# QUITAR ESTOS #}
+<!-- Left col -->
+<section class="col-lg-6 connectedSortable"> 
+  <!-- Box (with bar chart) -->
+  <div class="box box-danger" id="loading-example" style="display:none;">
+    <div class="box-header">
+      <!-- tools box -->
+      <div class="pull-right box-tools">
+
+      </div><!-- /. tools -->
+
+
+      <h3 class="box-title"></h3>
+    </div><!-- /.box-header -->
+    <div class="box-body no-padding">
+      <div class="row">
+        <div class="col-sm-12">
+          <!-- bar chart -->
+          <div class="chart" id="bar-chart" style="display:none; height: 2px;"></div>
+        </div>
+
+      </div><!-- /.row - inside box -->
+    </div><!-- /.box-body -->
+
+  </div><!-- /.box -->        
+
+  <!-- Custom tabs (Charts with tabs)-->
+  <div class="nav-tabs-custom">
+    <!-- Tabs within a box -->
+    <ul class="nav nav-tabs pull-right">
+      <li class="active"><a href="#revenue-chart" data-toggle="tab"></a></li>
+      <li><a href="#sales-chart" data-toggle="tab"></a></li>
+      <li class="pull-left header"></li>
+    </ul>
+    <div class="tab-content no-padding">
+      <!-- Morris chart - Sales -->
+      <div class="chart tab-pane active" id="revenue-chart" style="position: relative; height: 3px;"></div>
+      <div class="chart tab-pane" id="sales-chart" style="position: relative; height: 3px;"></div>
+    </div>
+  </div><!-- /.nav-tabs-custom -->
+
+
+
+
+
+</section><!-- /.Left col -->
+<!-- right col (We are only adding the ID to make the widgets sortable)-->
+<section class="col-lg-6 connectedSortable">
+
+
+
+
+
+</section><!-- right col -->
+</div><!-- /.row (main row) -->
+
+</section><!-- /.content -->
+</aside><!-- /.right-side -->
+</div><!-- ./wrapper -->
+
+<!-- add new calendar event modal -->
+
+
+
+
+</body>
+</html>

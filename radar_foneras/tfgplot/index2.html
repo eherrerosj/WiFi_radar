@@ -1,0 +1,788 @@
+
+
+
+{% load staticfiles %}
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script src="http://code.highcharts.com/highcharts-more.js"></script>
+    <script src="http://code.highcharts.com/modules/exporting.js"></script>
+    <script src="http://code.highcharts.com/modules/data.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/highcharts_tema.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/jit.js"></script>
+
+    <script type="text/javascript">
+    var labelType, useGradients, nativeTextSupport, animate;
+(function() {
+  var ua = navigator.userAgent,
+      iStuff = ua.match(/iPhone/i) || ua.match(/iPad/i),
+      typeOfCanvas = typeof HTMLCanvasElement,
+      nativeCanvasSupport = (typeOfCanvas == 'object' || typeOfCanvas == 'function'),
+      textSupport = nativeCanvasSupport 
+        && (typeof document.createElement('canvas').getContext('2d').fillText == 'function');
+  //I'm setting this based on the fact that ExCanvas provides text support for IE
+  //and that as of today iPhone/iPad current text support is lame
+  labelType = (!nativeCanvasSupport || (textSupport && !iStuff))? 'Native' : 'HTML';
+  nativeTextSupport = labelType == 'Native';
+  useGradients = nativeCanvasSupport;
+  animate = !(iStuff || !nativeCanvasSupport);
+})();
+
+var Log = {
+  elem: false,
+  write: function(text){
+    if (!this.elem) 
+      this.elem = document.getElementById('log');
+    this.elem.innerHTML = text;
+    this.elem.style.left = (500 - this.elem.offsetWidth / 2) + 'px';
+  }
+};
+
+
+
+function init(){
+
+  //linea 16532 de jit.js para controlar el radio del layout
+  //obtener datos de la BBDD en parsear como json
+  var json_radar = {
+        "id": "1",
+        "name": "Fonera 2 (4.1.F13)",
+        "children": [
+        {% if clave_radar %}
+          {% for radar in clave_radar %}
+            {% if radar.fonera_id == "Fon2" %}
+              {"id": "{{ radar.clave }}",
+              "name": "{{ radar.ap_encontrado }}",
+              "data": {"": "","": ""},
+              "children": [
+              {% if radar.clientes_encontrados != "null" %}
+                {% for client in radar.lista_clientes_encontrados %}
+                  {"id": "{{ radar.clave }}_{{ radar.aleat }}",
+                   "name": "{{ client }})",
+                   "data": {"": "", "": ""},
+                     "children": []},
+                {% endfor %}
+              {% endif %} 
+            ]},
+              {% endif %} 
+            {% endfor %}
+        {% endif %}  
+        ],
+    };
+
+    //end
+    var infovis = document.getElementById('infovis');
+    var w = infovis.offsetWidth - 50, h = infovis.offsetHeight - 50;
+    
+    //init Hypertree
+    var ht = new $jit.Hypertree({
+      //id of the visualization container
+      injectInto: 'infovis',
+      //canvas width and height
+      width: w,
+      height: h,
+      //Change node and edge styles such as
+      //color, width and dimensions.
+      Node: {
+          dim: 9,
+          color: "#f00"
+      },
+      Edge: {
+          lineWidth: 2,
+          color: "#088"
+      },
+      onBeforeCompute: function(node){
+          //Log.write("centering");
+      },
+      //Attach event handlers and add text to the
+      //labels. This method is only triggered on label
+      //creation
+      onCreateLabel: function(domElement, node){
+          domElement.innerHTML = node.name;
+          $jit.util.addEvent(domElement, 'click', function () {
+              ht.onClick(node.id, {
+                  onComplete: function() {
+                      ht.controller.onComplete();
+                  }
+              });
+          });
+      },
+      //Change node styles when labels are placed
+      //or moved.
+      onPlaceLabel: function(domElement, node){
+          var style = domElement.style;
+          style.display = '';
+          style.cursor = 'pointer';
+          if (node._depth == 0) {
+              style.fontSize = "0.8em";
+              style.color = "#333";
+
+          } else if(node._depth == 1) {
+              style.fontSize = "0.8em";
+              style.color = "#444";
+
+          } else if(node._depth == 2){
+              style.fontSize = "0.7em";
+              style.color = "black";
+
+          } else {
+              style.display = 'none';
+          }
+
+          var left = parseInt(style.left);
+          var w = domElement.offsetWidth;
+          style.left = (left - w / 2) + 'px';
+      },
+      
+      onComplete: function(){
+          //Log.write("done");
+          
+          //Build the right column relations list.
+          //This is done by collecting the information (stored in the data property) 
+          //for all the nodes adjacent to the centered node.
+          var node = ht.graph.getClosestNodeToOrigin("current");
+          var html = "<h4>" + node.name + "</h4><b>Connections:</b>";
+          html += "<ul>";
+          node.eachAdjacency(function(adj){
+              var child = adj.nodeTo;
+              if (child.data) {
+                  var rel = (child.data.band == node.name) ? child.data.relation : node.data.relation;
+                  //html += "<li>" + child.name + " " + "<div class=\"relation\">(relation: " + rel + ")</div></li>";
+              }
+          });
+          html += "</ul>";
+          //$jit.id('inner-details').innerHTML = html;
+      }
+    });
+    //load JSON data.
+    ht.loadJSON(json_radar);
+    //compute positions and plot.
+    ht.refresh();
+    //end
+    ht.controller.onComplete();
+}
+</script>
+
+
+
+    <link type="text/css" href="/static/base.css" rel="stylesheet" />
+    <link type="text/css" href="/static/Hypertree.css" rel="stylesheet" />
+    <link type="text/css" href="/static/tablas.css" rel="stylesheet" />
+    <link type="text/css" href="/static/menu.css" rel="stylesheet" /> 
+  </head>
+
+<body onload="init();">
+
+
+
+<h2>TFG Enrique Herreros Jiménez. GISC 2014.</h2>
+
+<p></p>
+<nav>
+  <ul>
+    <li><a href="index.html#status">STATUS SISTEMA </a></li>
+    <li>
+      <a href="#radar">RADAR <span class="caret"></span></a>
+      <div>
+        <ul>
+          <li><a href="index.html#radar">Tabla</a></li>
+          <li><a href="index.html#mapa">Mapa del departamento</a></li>
+        </ul>
+      </div>
+    </li>
+    <li>
+      <a href="#th">THROUGHPUT <span class="caret"></span></a>
+      <div>
+        <ul>
+          <li><a href="#th_fon1">Fonera 1 </a></li>
+          <li><a href="#th_fon2">Fonera 2 </a></li>
+          <li><a href="#th_fon3">Fonera 3 </a></li>
+          <li><a href="#th_fon4">Fonera 4 </a></li>
+          <li><a href="#th_fon5">Fonera 5 </a></li>
+          <li><a href="#th_fon6">Fonera 6 </a></li>
+          <li><a href="#th_fon7">Fonera 7 </a></li>
+          <li><a href="#th_fon8">Fonera 8 </a></li>
+          <li><a href="#th_fon9">Fonera 9 </a></li>
+          <li><a href="#th_fon10">Fonera 10 </a></li>
+          <li><a href="#th_fon11">Fonera 11 </a></li>
+        </ul>
+      </div>
+    </li>
+    <li><a href="index.html#acerca">ACERCA</a></li>
+  </ul>
+</nav>
+
+<h3><a name="status">Estado de las foneras</a></h3>
+<p>En esta tabla se muestra el estado de conexión de las foneras a través de un sencillo sistema de registro en el que las foneras generan un fichero con sus propiedades actuales y lo transmiten al servidor cada cortos periodos de tiempo. Este vuelca la información a una base de datos que es modelada por django</p>
+
+<div class="datagrid"><table>
+<thead><tr><th>ID Fonera</th><th>Localización en dpto</th><th>IP</th><th>Último registro</th><th>Último reinicio</th><th>% de disco ocupado</th><th>Ruta de archivos remotos en fonera</th><th>Ruta de archivos remotos en servidor</th></tr></thead>
+<tbody>
+  {% if clave_ef %}
+      {% for estado_foneras in clave_ef %}
+          <tr class="alt"><td>{{ estado_foneras.fonera_id }}</td><td>{{ estado_foneras.localizacion }}</td><td>{{ estado_foneras.ip }}</td><td>{{ estado_foneras.ultimo_reg }}</td><td>{{ estado_foneras.ultimo_rei }}</td><td>{{ estado_foneras.tmp_ocupado }}</td><td>{{ estado_foneras.ruta_mnt_fonera }}</td><td>{{ estado_foneras.ruta_mnt_servidor }}</td></tr>
+      {% endfor %}
+  {% else %}
+      <p>No hay registros de foneras disponibles!</p>
+  {% endif %}
+</tbody>
+</table></div>
+
+<p><a name="mapa">MAPA DEL DPTO DE TELEMÁTICA AQUÍ</a></p>
+<p></p>
+<a name="radar"><h3>Radar de puntos de acceso</h3></a>
+<p>En esta tabla se muestran los AP (Access Points o Puntos de Acceso) que han encontrado todas las foneras en los últimos instantes. Se especifican detalles como la fonera para la que es visible, su dirección MAC, el canal en el que opera, si usa una conexión segura o no y los clientes que están conectados por WiFi a esta red. Además, se han cruzado las MAC (tanto del AP como de los terminales conectados a ellos) con la base de datos oficial del IEEE para conocer el fabricante de las tarjetas de red.</p>
+
+
+<div class="datagrid2"><table>
+<thead><tr><th>Punto de Acceso (AP)</th><th>Dirección MAC</th><th>Fabricante</th><th>Canal</th><th>¿Usa cifrado?</th><th>Fonera que lo ve</th><th>Clientes intercambiando tráfico con este AP</th></tr></thead>
+<tbody>
+  {% if clave_radar %}
+      {% for radar in clave_radar %}
+          <tr class="alt"><td>{{ radar.ap_encontrado }}</td><td>{{ radar.mac }}</td><td>{{ radar.vendor }}</td><td>{{ radar.canal }}</td><td>{{ radar.cifrado }}</td><td>{{ radar.fonera_id }}</td><td>{{ radar.clientes_encontrados }}</td></tr>
+      {% endfor %}
+      {# </ul> #}
+  {% else %}
+      <p>No hay registros de puntos de acceso encontrados!</p>
+  {% endif %}
+</tbody>
+</table></div>
+
+
+<a name="th"><h3>Gráficas de throughtput</h3></a>
+
+<!-- <div id="1container" style="min-width: 300px; height: 350px; margin: 1em"></div> -->
+
+    <script type="text/javascript">
+    //   {% autoescape off %}
+    //   $(document).ready(function(){
+    //       $('#container1').highcharts({
+    //         title: {
+    //             text: 'Gráfica throughput para el canal 11 de la fonera 11'
+    //         },
+    //           xAxis: {
+    //               categories: [ {% for traza in clave_trazas %} {% if traza.canal == 11 %} '{{ traza.inicio_tstamp|date:"dM H:i" }}', {% endif %}{% endfor %} ]
+    //               // categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',]
+    //           },
+    //           series: [{
+    //             data: [{% for traza in clave_trazas %} {% if traza.canal == 11 %} {{ traza.throughput }}, {% endif %}{% endfor %}]
+    //               // data: [29.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+    //           }]
+    //       });
+    //   });
+    //   {% endautoescape %}
+    </script>
+
+
+
+<!-- Grafica para los canales en cada color. Zoomable. Media de grupos de 6 valores para tener efecto smooth. -->
+<div id="containerAVG11" style="min-width: 310px; height: 400px; margin:1em"></div>
+    <script type="text/javascript">
+      {% autoescape off %}
+      $(function () {
+      $(document).ready(function () {
+        $('#containerAVG11').highcharts({
+            chart: {
+                zoomType: 'x',
+                type: 'spline'
+            },
+            title: {
+                text: 'Throughput MEDIO para fonera 11'
+            },
+            subtitle: {
+                text: 'Llegada de datos asíncrona. Average'
+            },
+            xAxis: {
+                title: {
+                    text: 'Fecha'
+                },
+                type: 'datetime',
+                dateTimeLabelFormats: { // don't display the dummy year
+                    month: '%e. %b',
+                    year: '%b'
+                }
+            },
+            plotOptions: {
+                spline: {
+                    lineWidth: 1,
+                    marker: {
+                        enabled: false
+                    },
+                    shadow: false,
+                    states: {
+                        hover: {
+                            lineWidth: 2
+                        }
+                    },
+                    //threshold: null
+                }
+            },
+            yAxis: {
+                title: {
+                    text: 'Throughput (kbps)'
+                },
+                min: 0,
+                max: 1500
+                //maxPadding: 0.04
+            },
+            tooltip: {
+                formatter: function() {
+                        return '<b>'+ this.series.name +'</b><br/>'+
+                        Highcharts.dateFormat('%e/%b %H:%M', this.x) + ' (' + this.y + ' kbps)';
+                }
+            },
+            series: [{
+                lineWidth: 1,
+                name: 'Canal 11',
+                data: [{% for avg, momento in avgs_11 %}[Date.UTC({{ momento|date:"Y"}},{{ momento|date:"m"}}-1,{{ momento|date:"j, G, i" }}), {{ avg }}], {% endfor %}]
+            }, {
+                lineWidth: 1,
+                name: 'Canal 6',
+                data: [{% for avg, momento in avgs_6 %}[Date.UTC({{ momento|date:"Y"}},{{ momento|date:"m"}}-1,{{ momento|date:"j, G, i" }}), {{ avg }}], {% endfor %}]
+            }, {
+                lineWidth: 1,
+                name: 'Canal 1',
+                data: [{% for avg, momento in avgs_1 %}[Date.UTC({{ momento|date:"Y"}},{{ momento|date:"m"}}-1,{{ momento|date:"j, G, i" }}), {{ avg }}], {% endfor %}]
+            }]
+        });
+    // var chart = $('#containerAVG11').highcharts();
+    // chart.redraw();
+    });
+  $('#buttonUS').click(function() {
+          var chart = $('#containerAVG11').highcharts();
+          var currentDate = new Date();
+          var hours = currentDate.getHours();
+          var day = currentDate.getDate();
+          var month = currentDate.getMonth() + 1;
+          var year = currentDate.getFullYear();
+          var diferencia = (7)*(24*3600*1000); // primer numero es el numero de dias de rango que queremos ver de sin zoom
+          var t2 = new Date(currentDate.getTime() - diferencia);
+          chart.xAxis[0].setExtremes(Date.UTC(t2.getFullYear(), t2.getMonth(), t2.getDate(), t2.getHours()), Date.UTC(year, month-1, day, hours));
+  });
+});
+      {% endautoescape %}
+    </script>
+<button id="buttonUS" class="autocompare">Ultima semana</button>
+
+
+{% for avg, momento in avgs_1 %}[Date.UTC({{ momento|date:"Y"}},{{ momento|date:"m"}}-1,{{ momento|date:"j, G, i" }}), {{ avg }}], {% endfor %}
+
+
+<!-- Grafica para los canales en cada color. Zoomable. Rango ajustable en el JavaScript del final. -->
+<div id="container3" style="min-width: 310px; height: 400px; margin:1em"></div>
+    <script type="text/javascript">
+      {% autoescape off %}
+      $(function () {
+      $(document).ready(function () {
+        $('#container3').highcharts({
+            chart: {
+                zoomType: 'x',
+                type: 'spline'
+            },
+            title: {
+                text: 'Throughput para fonera 11'
+            },
+            subtitle: {
+                text: 'Llegada de datos asíncrona. 230 puntos/canal'
+            },
+            xAxis: {
+                title: {
+                    text: 'Fecha'
+                },
+                type: 'datetime',
+                dateTimeLabelFormats: { // don't display the dummy year
+                    month: '%e. %b',
+                    year: '%b'
+                }
+            },
+            plotOptions: {
+                spline: {
+                    lineWidth: 1,
+                    marker: {
+                        enabled: false
+                    },
+                    shadow: false,
+                    states: {
+                        hover: {
+                            lineWidth: 2
+                        }
+                    },
+                    //threshold: null
+                }
+            },
+            yAxis: {
+                title: {
+                    text: 'Throughput (kbps)'
+                },
+                min: 0,
+                max: 1500
+                //maxPadding: 0.04
+            },
+            tooltip: {
+                formatter: function() {
+                        return '<b>'+ this.series.name +'</b><br/>'+
+                        Highcharts.dateFormat('%e/%b %H:%M', this.x) + ' (' + this.y + ' kbps)';
+                }
+            },
+            series: [{
+                lineWidth: 1,
+                name: 'Canal 11',
+                data: [{% for traza in clave_trazas %} {% if traza.canal == 11 %} [Date.UTC({{ traza.inicio_tstamp|date:"Y"}},{{ traza.inicio_tstamp|date:"m"}}-1,{{ traza.inicio_tstamp|date:"j, G, i" }}), {{ traza.throughput }}], {% endif %}{% endfor %}]
+            }, {
+                lineWidth: 1,
+                name: 'Canal 6',
+                data: [{% for traza in clave_trazas %} {% if traza.canal == 6 %} [Date.UTC({{ traza.inicio_tstamp|date:"Y"}},{{ traza.inicio_tstamp|date:"m"}}-1,{{ traza.inicio_tstamp|date:"j, G, i" }}), {{ traza.throughput }}], {% endif %}{% endfor %}]
+            }, {
+                lineWidth: 1,
+                name: 'Canal 1',
+                data: [{% for traza in clave_trazas %} {% if traza.canal == 1 %} [Date.UTC({{ traza.inicio_tstamp|date:"Y"}},{{ traza.inicio_tstamp|date:"m"}}-1,{{ traza.inicio_tstamp|date:"j, G, i" }}), {{ traza.throughput }}], {% endif %}{% endfor %}]
+            }]
+        });
+    var chart = $('#container3').highcharts();
+    var currentDate = new Date();
+    var hours = currentDate.getHours();
+    var day = currentDate.getDate();
+    var month = currentDate.getMonth() + 1;
+    var year = currentDate.getFullYear();
+    var diferencia = (3/2)*(24*3600*1000); // primer numero es el numero de dias de rango que queremos ver de sin zoom
+    var t2 = new Date(currentDate.getTime() - diferencia);
+    chart.xAxis[0].setExtremes(Date.UTC(t2.getFullYear(), t2.getMonth(), t2.getDate(), t2.getHours()), Date.UTC(year, month-1, day, hours));
+    // chart.redraw();
+    });
+
+  $('#buttonUH').click(function() {
+          var chart = $('#container3').highcharts();
+          var currentDate = new Date();
+          var hours = currentDate.getHours();
+          var day = currentDate.getDate();
+          var month = currentDate.getMonth() + 1;
+          var year = currentDate.getFullYear();
+          var diferencia = (7)*(24*3600*1000); // primer numero es el numero de dias de rango que queremos ver de sin zoom
+          var t2 = new Date(currentDate.getTime() - diferencia);
+          chart.xAxis[0].setExtremes(Date.UTC(t2.getFullYear(), t2.getMonth(), t2.getDate(), t2.getHours()), Date.UTC(year, month-1, day, hours));
+  });
+
+});
+
+      {% endautoescape %}
+    </script>
+
+
+<button id="buttonUH" class="autocompare">Ultima semana</button>
+
+<div id="containerLim" style="min-width: 310px; height: 400px; margin:1em"></div>
+    <script type="text/javascript">
+      {% autoescape off %}
+      $(document).ready(function () {
+        $('#containerLim').highcharts({
+            chart: {
+                zoomType: 'xy',
+                type: 'spline'
+            },
+            title: {
+                text: 'Throughput para fonera 11'
+            },
+            subtitle: {
+                text: 'Llegada de datos asíncrona. Limitado a X últimos puntos. Investigar'
+            },
+            xAxis: {
+                title: {
+                    text: 'Fecha'
+                },
+                type: 'datetime',
+                dateTimeLabelFormats: { // don't display the dummy year
+                    month: '%e. %b',
+                    year: '%b'
+                }
+            },
+            plotOptions: {
+                spline: {
+                    lineWidth: 1,
+                    marker: {
+                        enabled: false
+                    },
+                    shadow: false,
+                    states: {
+                        hover: {
+                            lineWidth: 2
+                        }
+                    },
+                    //threshold: null
+                }
+            },
+            yAxis: {
+                title: {
+                    text: 'Throughput (kbps)'
+                },
+                min: 0,
+                max: 1600
+                //maxPadding: 0.04
+            },
+            tooltip: {
+                formatter: function() {
+                        return '<b>'+ this.series.name +'</b><br/>'+
+                        Highcharts.dateFormat('%e/%b %H:%M', this.x) + ' (' + this.y + ' kbps)';
+                }
+            },
+            series: [{
+                lineWidth: 1,
+                name: 'Canal 11',
+                data: [{% for traza in U200clave_trazas %} {% if traza.canal == 11 %} [Date.UTC({{ traza.inicio_tstamp|date:"Y"}},{{ traza.inicio_tstamp|date:"m"}}-1,{{ traza.inicio_tstamp|date:"j, G, i" }}), {{ traza.throughput }}], {% endif %}{% endfor %}]
+            }
+            ,{
+                lineWidth: 1,
+                name: 'Canal 6',
+                data: [{% for traza in U200clave_trazas %} {% if traza.canal == 6 %} [Date.UTC({{ traza.inicio_tstamp|date:"Y"}},{{ traza.inicio_tstamp|date:"m"}}-1,{{ traza.inicio_tstamp|date:"j, G, i" }}), {{ traza.throughput }}], {% endif %}{% endfor %}]
+            }, {
+                lineWidth: 1,
+                name: 'Canal 1',
+                data: [{% for traza in U200clave_trazas %} {% if traza.canal == 1 %} [Date.UTC({{ traza.inicio_tstamp|date:"Y"}},{{ traza.inicio_tstamp|date:"m"}}-1,{{ traza.inicio_tstamp|date:"j, G, i" }}), {{ traza.throughput }}], {% endif %}{% endfor %}]
+            }
+            ]
+        });
+    });
+      {% endautoescape %}
+    </script>
+
+
+<div id="containernode">
+<div style="text-align:center;"></div>            
+<div id="center-container">
+    <div id="infovis" ></div>    
+</div>
+
+<div id="right-container">
+
+<div id="inner-details"></div>
+
+</div>
+
+<div id="log"></div>
+</div>
+
+
+<div id="rosavientos" style="min-width: 420px; max-width: 600px; height: 400px; margin: 0 auto"></div>
+
+<div style="display:none">
+  <table id="freq" border="0" cellspacing="0" cellpadding="0">
+    <tr nowrap bgcolor="#CCCCFF">
+      <th colspan="9" class="hdr">Table of Frequencies (percent)</th>
+    </tr>
+    <tr nowrap bgcolor="#CCCCFF">
+      <th class="freq">Direction</th>
+      <th class="freq">&lt; Throughput</th>
+    </tr>
+        {% if clave_trazas %}{% for trazas in clave_trazas %}{% if trazas.fonera_id == "Fon2" and trazas.ultimo_pcap == "si" %}<tr nowrap><td class="dir">{{trazas.canal}}</td><td class="data">{{trazas.throughput}}</td></tr>{% endif %}{% endfor %}{% endif %}
+  </table>
+</div>
+
+
+    <script type="text/javascript">
+      {% autoescape off %}
+
+    $(function () {
+    
+    // Parse the data from an inline table using the Highcharts Data plugin
+    $('#rosavientos').highcharts({
+      data: {
+        table: 'freq',
+        startRow: 1,
+        endRow: 14,
+        endColumn: 1
+      },
+      chart: {
+          polar: true,
+          type: 'column'
+      },
+      
+      title: {
+          text: 'Distribución del throughtput medio según canal'
+      },
+      
+      subtitle: {
+        text: 'Unidades: kilobits por segundo. Muestreo: 164 segundos'
+      },
+      
+      pane: {
+        size: '95%'
+      },
+      
+      legend: {
+        enabled: false,
+        reversed: true,
+        align: 'right',
+        verticalAlign: 'top',
+        y: 100,
+        layout: 'vertical'
+      },
+      
+      xAxis: {
+        tickmarkPlacement: 'on'
+      },
+          
+      yAxis: {
+          min: 0,
+          endOnTick: false,
+          showLastLabel: true,
+          title: {
+            text: 'Throughput (kbps)'
+          },
+          labels: {
+            formatter: function () {
+              return this.value + ' kbps';
+            }
+          }
+      },
+      
+      tooltip: {
+        valueSuffix: ' kbps',
+        followPointer: true
+      },
+          
+      plotOptions: {
+          series: {
+            stacking: 'normal',
+            shadow: false,
+            groupPadding: 0,
+            pointPlacement: 'on'
+          }
+      }
+  });
+});
+
+      {% endautoescape %}
+    </script>
+
+
+
+
+
+
+<div id="containerCPU11" style="min-width: 310px; max-width: 400px; height: 300px; margin: 1em auto"></div>
+    <script type="text/javascript">
+      {% autoescape off %}
+      
+
+$(function () {
+  $(document).ready(function () {
+    $('#containerCPU11').highcharts({
+      chart: {
+          type: 'gauge',
+          plotBackgroundColor: null,
+          plotBackgroundImage: null,
+          plotBorderWidth: 0,
+          plotShadow: false
+      },
+      title: {
+          text: 'Carga CPU Fonera 11'
+      },
+      pane: {
+          startAngle: -150,
+          endAngle: 150,
+          background: [{
+              backgroundColor: {
+                  linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                  stops: [
+                      [0, '#FFF'],
+                      [1, '#333']
+                  ]
+              },
+              borderWidth: 0,
+              outerRadius: '109%'
+          }, {
+              backgroundColor: {
+                  linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                  stops: [
+                      [0, '#333'],
+                      [1, '#FFF']
+                  ]
+              },
+              borderWidth: 1,
+              outerRadius: '107%'
+          }, {
+              // default background
+          }, {
+              backgroundColor: '#DDD',
+              borderWidth: 0,
+              outerRadius: '105%',
+              innerRadius: '103%'
+          }]
+      },
+         
+      // the value axis
+      yAxis: {
+          min: 0,
+          max: 200,
+          
+          minorTickInterval: 'auto',
+          minorTickWidth: 1,
+          minorTickLength: 10,
+          minorTickPosition: 'inside',
+          minorTickColor: '#666',
+  
+          tickPixelInterval: 30,
+          tickWidth: 2,
+          tickPosition: 'inside',
+          tickLength: 10,
+          tickColor: '#666',
+          labels: {
+              step: 2,
+              rotation: 'auto'
+          },
+          title: {
+              text: 'CPU Load %'
+          },
+          plotBands: [{
+              from: 0,
+              to: 100,
+              color: '#55BF3B' // green
+          }, {
+              from: 100,
+              to: 150,
+              color: '#DDDF0D' // yellow
+          }, {
+              from: 150,
+              to: 200,
+              color: '#DF5353' // red
+          }]        
+      },
+  
+      series: [{
+          name: 'Carga',
+          data: [
+              {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon2" %}
+              {{ estado_foneras.carga_cpu }}*100
+              {% endif %}{% endfor %}{% endif %}
+          ],
+          tooltip: {
+              valueSuffix: ' %'
+          }
+      }]
+  
+  }, 
+  function (chart) {
+    if (!chart.renderer.forExport) {
+            // var point = chart.series[0].points[0],
+            //     newVal,
+            //     inc = Math.round((Math.random() - 0.5) * 20);
+            // newVal = point.y + inc;
+            // if (newVal < 0 || newVal > 300) {
+            //     newVal = point.y - inc;
+            // }
+              {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon2" %}
+              newVal = {{ estado_foneras.carga_cpu }}*100;
+              {% endif %}{% endfor %}{% endif %}
+            point.update(newVal);
+    }
+  });
+});
+});
+      {% endautoescape %}
+    </script>
+
+  </body>
+</html>

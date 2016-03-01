@@ -1,0 +1,2201 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>WiFi-Radar | EHJ TFG</title>
+
+
+
+
+
+  <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+  <!-- bootstrap 3.0.2 -->
+  <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+  <!-- font Awesome -->
+  <link href="/static/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+  <!-- Ionicons -->
+  <link href="/static/css/ionicons.min.css" rel="stylesheet" type="text/css" />
+  <!-- Morris chart -->
+  <link href="/static/css/morris/morris.css" rel="stylesheet" type="text/css" />
+  <!-- jvectormap -->
+  <link href="/static/css/jvectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
+  <!-- fullCalendar -->
+  <link href="/static/css/fullcalendar/fullcalendar.css" rel="stylesheet" type="text/css" />
+  <!-- Daterange picker -->
+  <link href="/static/css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />
+  <!-- bootstrap wysihtml5 - text editor -->
+  <link href="/static/css/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css" rel="stylesheet" type="text/css" />
+  <!-- Theme style -->
+  <link href="/static/css/AdminLTE.css" rel="stylesheet" type="text/css" />
+
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+          <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+          <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+          <![endif]-->
+
+
+          <link type="text/css" href="/static/base.css" rel="stylesheet" />
+          <link type="text/css" href="/static/Hypertree.css" rel="stylesheet" />
+          <link type="text/css" href="/static/tablas.css" rel="stylesheet" />
+          <link type="text/css" href="/static/menu.css" rel="stylesheet" /> 
+
+
+          <!-- jQuery 2.0.2 -->
+          <script src="/static/jquery.min.js"></script>
+          <!-- jQuery UI 1.10.3 -->
+          <script src="/static/js/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
+          <!-- Bootstrap -->
+          <script src="/static/js/bootstrap.min.js" type="text/javascript"></script>
+          <!-- Morris.js charts -->
+          <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+          <script src="/static/js/plugins/morris/morris.min.js" type="text/javascript"></script>
+          <!-- Sparkline -->
+          <script src="/static/js/plugins/sparkline/jquery.sparkline.min.js" type="text/javascript"></script>
+          <!-- jvectormap -->
+          <script src="/static/js/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js" type="text/javascript"></script>
+          <script src="/static/js/plugins/jvectormap/jquery-jvectormap-world-mill-en.js" type="text/javascript"></script>
+          <!-- fullCalendar -->
+          <script src="/static/js/plugins/fullcalendar/fullcalendar.min.js" type="text/javascript"></script>
+          <!-- jQuery Knob Chart -->
+          <script src="/static/js/plugins/jqueryKnob/jquery.knob.js" type="text/javascript"></script>
+          <!-- daterangepicker -->
+          <script src="/static/js/plugins/daterangepicker/daterangepicker.js" type="text/javascript"></script>
+          <!-- Bootstrap WYSIHTML5 -->
+          <script src="/static/js/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js" type="text/javascript"></script>
+          <!-- iCheck -->
+          <script src="/static/js/plugins/iCheck/icheck.min.js" type="text/javascript"></script>
+
+          <!-- AdminLTE App -->
+          <script src="/static/js/AdminLTE/app.js" type="text/javascript"></script>
+
+          <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+          <script src="/static/js/AdminLTE/dashboard.js" type="text/javascript"></script>
+          <!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script> -->
+          <script src="/static/highcharts.js"></script>
+          <script src="/static/highcharts-more.js" type="text/javascript"></script>
+          <script src="/static/exporting.js" type="text/javascript"></script>
+          <script src="http://code.highcharts.com/modules/data.js"></script>
+          <script language="javascript" type="text/javascript" src="/static/highcharts_tema.js"></script>
+          <script language="javascript" type="text/javascript" src="/static/jit.js"></script>
+          <script language="javascript" type="text/javascript" src="/static/jquery.bpopup.min.js"></script>
+          <script type="text/javascript">
+          var labelType, useGradients, nativeTextSupport, animate;
+          (function() {
+            var ua = navigator.userAgent,
+            iStuff = ua.match(/iPhone/i) || ua.match(/iPad/i),
+            typeOfCanvas = typeof HTMLCanvasElement,
+            nativeCanvasSupport = (typeOfCanvas == 'object' || typeOfCanvas == 'function'),
+            textSupport = nativeCanvasSupport 
+            && (typeof document.createElement('canvas').getContext('2d').fillText == 'function');
+  //I'm setting this based on the fact that ExCanvas provides text support for IE
+  //and that as of today iPhone/iPad current text support is lame
+  labelType = (!nativeCanvasSupport || (textSupport && !iStuff))? 'Native' : 'HTML';
+  nativeTextSupport = labelType == 'Native';
+  useGradients = nativeCanvasSupport;
+  animate = !(iStuff || !nativeCanvasSupport);
+})();
+
+var Log = {
+  elem: false,
+  write: function(text){
+    if (!this.elem) 
+      this.elem = document.getElementById('log');
+    this.elem.innerHTML = text;
+    this.elem.style.left = (500 - this.elem.offsetWidth / 2) + 'px';
+  }
+};
+
+
+
+function init(){
+
+  //linea 16532 de jit.js para controlar el radio del layout
+  //obtener datos de la BBDD en parsear como json
+  var json_radar = {
+    "id": "1",
+    "name": "Fonera 2 (4.1.F13)",
+    "children": [
+    {% if clave_radar %}
+    {% for radar in clave_radar %}
+    {"id": "{{ radar.clave }}",
+    "name": "{{ radar.ap_encontrado }}",
+    "data": {"": "","": ""},
+    "children": [
+    {% if radar.clientes_encontrados != "null" %}
+    {% for client in radar.lista_clientes_encontrados %}
+    {"id": "{{ radar.clave }}_{{ radar.aleat }}",
+    "name": "{{ client }})",
+"data": {"": "", "": ""},
+"children": []},
+{% endfor %}
+{% endif %} 
+]},
+{% endfor %}
+{% endif %}  
+],
+};
+
+    //end
+    var infovis = document.getElementById('infovis');
+    var w = infovis.offsetWidth - 50, h = infovis.offsetHeight - 50;
+    
+    //init Hypertree
+    var ht = new $jit.Hypertree({
+      //id of the visualization container
+      injectInto: 'infovis',
+      //canvas width and height
+      width: w,
+      height: h,
+      //Change node and edge styles such as
+      //color, width and dimensions.
+      Node: {
+        dim: 9,
+        color: "#f00"
+      },
+      Edge: {
+        lineWidth: 2,
+        color: "#088"
+      },
+      onBeforeCompute: function(node){
+          //Log.write("centering");
+        },
+      //Attach event handlers and add text to the
+      //labels. This method is only triggered on label
+      //creation
+      onCreateLabel: function(domElement, node){
+        domElement.innerHTML = node.name;
+        $jit.util.addEvent(domElement, 'click', function () {
+          ht.onClick(node.id, {
+            onComplete: function() {
+              ht.controller.onComplete();
+            }
+          });
+        });
+      },
+      //Change node styles when labels are placed
+      //or moved.
+      onPlaceLabel: function(domElement, node){
+        var style = domElement.style;
+        style.display = '';
+        style.cursor = 'pointer';
+        if (node._depth == 0) {
+          style.fontSize = "0.8em";
+          style.color = "#333";
+
+        } else if(node._depth == 1) {
+          style.fontSize = "0.8em";
+          style.color = "#444";
+
+        } else if(node._depth == 2){
+          style.fontSize = "0.7em";
+          style.color = "black";
+
+        } else {
+          style.display = 'none';
+        }
+
+        var left = parseInt(style.left);
+        var w = domElement.offsetWidth;
+        style.left = (left - w / 2) + 'px';
+      },
+      
+      onComplete: function(){
+          //Log.write("done");
+          
+          //Build the right column relations list.
+          //This is done by collecting the information (stored in the data property) 
+          //for all the nodes adjacent to the centered node.
+          var node = ht.graph.getClosestNodeToOrigin("current");
+          var html = "<h4>" + node.name + "</h4><b>Connections:</b>";
+          html += "<ul>";
+          node.eachAdjacency(function(adj){
+            var child = adj.nodeTo;
+            if (child.data) {
+              var rel = (child.data.band == node.name) ? child.data.relation : node.data.relation;
+                  //html += "<li>" + child.name + " " + "<div class=\"relation\">(relation: " + rel + ")</div></li>";
+                }
+              });
+          html += "</ul>";
+          //$jit.id('inner-details').innerHTML = html;
+        }
+      });
+    //load JSON data.
+    ht.loadJSON(json_radar);
+    //compute positions and plot.
+    ht.refresh();
+    //end
+    ht.controller.onComplete();
+  }
+  </script>
+
+
+
+
+
+
+
+
+
+</head>
+<body onload="init();" class="skin-blue">
+
+  <!-- header logo: style can be found in header.less -->
+  <header class="header">
+    <a href="boot.html" class="logo">
+      <!-- Add the class icon to your logo image or logo icon to add the margining -->
+      WiFi - RADAR
+    </a>
+    <!-- Header Navbar: style can be found in header.less -->
+    <nav class="navbar navbar-static-top" role="navigation">
+      <!-- Sidebar toggle button-->
+      <a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas" role="button">
+        <span class="sr-only">Toggle navigation</span>
+      </a>
+      <!-- Autor -->
+      <div class="navbar-right">
+        <h2 style="margin-right: 140px;">TFG Enrique Herreros</h2>
+      </div>
+    </nav>
+  </header>
+  <div class="wrapper row-offcanvas row-offcanvas-left">
+    <!-- Left side column. contains the logo and sidebar -->
+    <aside class="left-side sidebar-offcanvas">
+      <!-- sidebar: style can be found in sidebar.less -->
+      <section class="sidebar">
+
+        <ul class="sidebar-menu">
+          <li class="active">
+            <a href="http://escorpion.it.uc3m.es/">
+              <small class="badge pull-left bg-aqua"><i class="fa fa-dashboard fa-lg"></i></small> <span>Estado de los nodos</span>
+            </a>
+          </li>
+          <li class="treeview">
+            <a href="#">
+              <small class="badge pull-left bg-aqua"><i class="fa fa-bar-chart-o fa-lg"></i></small>
+              <span>Throughput</span>
+              <i class="fa fa-angle-left pull-right"></i>
+            </a>
+            <ul class="treeview-menu">
+              <li><a href="http://escorpion.it.uc3m.es/thr_fon1/"><i class="fa fa-angle-double-right"></i> Fonera 1</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/thr_fon2/"><i class="fa fa-angle-double-right"></i> Fonera 2</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/thr_fon3/"><i class="fa fa-angle-double-right"></i> Fonera 3</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/thr_fon4"><i class="fa fa-angle-double-right"></i> Fonera 4</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/thr_fon5"><i class="fa fa-angle-double-right"></i> Fonera 5</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/thr_fon6"><i class="fa fa-angle-double-right"></i> Fonera 6</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/thr_fon7"><i class="fa fa-angle-double-right"></i> Fonera 7</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/thr_fon8"><i class="fa fa-angle-double-right"></i> Fonera 8</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/thr_fon9"><i class="fa fa-angle-double-right"></i> Fonera 9</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/thr_fon10"><i class="fa fa-angle-double-right"></i> Fonera 10</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/thr_fon11"><i class="fa fa-angle-double-right"></i> Fonera 11</a></li>
+            </ul>
+          </li>
+          <li class="treeview">
+            <a href="#">
+              <small class="badge pull-left bg-aqua"><i class="fa fa-table"></i></small> <span>Tablas AP - Clientes</span>
+              <i class="fa fa-angle-left pull-right"></i>
+            </a>
+            <ul class="treeview-menu">
+              <li><a href="http://escorpion.it.uc3m.es/tab_fon1"><i class="fa fa-angle-double-right"></i> Fonera 1</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/tab_fon2"><i class="fa fa-angle-double-right"></i> Fonera 2</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/tab_fon3"><i class="fa fa-angle-double-right"></i> Fonera 3</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/tab_fon4"><i class="fa fa-angle-double-right"></i> Fonera 4</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/tab_fon5"><i class="fa fa-angle-double-right"></i> Fonera 5</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/tab_fon6"><i class="fa fa-angle-double-right"></i> Fonera 6</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/tab_fon7"><i class="fa fa-angle-double-right"></i> Fonera 7</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/tab_fon8"><i class="fa fa-angle-double-right"></i> Fonera 8</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/tab_fon9"><i class="fa fa-angle-double-right"></i> Fonera 9</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/tab_fon10"><i class="fa fa-angle-double-right"></i> Fonera 10</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/tab_fon11"><i class="fa fa-angle-double-right"></i> Fonera 11</a></li>
+            </ul>
+          </li>
+          <li class="treeview">
+            <a href="#">
+              <small class="badge pull-left bg-aqua"><i class="fa fa-sitemap"></i></small>
+              <span>Gráfico AP - Clientes</span>
+              <i class="fa fa-angle-left pull-right"></i>
+            </a>
+            <ul class="treeview-menu">
+              <li><a href="http://escorpion.it.uc3m.es/jit_fon1"><i class="fa fa-angle-double-right"></i> Fonera 1</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/jit_fon2"><i class="fa fa-angle-double-right"></i> Fonera 2</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/jit_fon3"><i class="fa fa-angle-double-right"></i> Fonera 3</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/jit_fon4"><i class="fa fa-angle-double-right"></i> Fonera 4</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/jit_fon5"><i class="fa fa-angle-double-right"></i> Fonera 5</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/jit_fon6"><i class="fa fa-angle-double-right"></i> Fonera 6</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/jit_fon7"><i class="fa fa-angle-double-right"></i> Fonera 7</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/http://escorpion.it.uc3m.es/jit_fon8"><i class="fa fa-angle-double-right"></i> Fonera 8</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/jit_fon9"><i class="fa fa-angle-double-right"></i> Fonera 9</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/jit_fon10"><i class="fa fa-angle-double-right"></i> Fonera 10</a></li>
+              <li><a href="http://escorpion.it.uc3m.es/jit_fon11"><i class="fa fa-angle-double-right"></i> Fonera 11</a></li>
+            </ul>
+          </li>
+
+        </ul>
+      </section>
+      <!-- /.sidebar -->
+    </aside>
+
+    <!-- Right side column. Contains the navbar and content of the page -->
+    <aside class="right-side">
+      <!-- Content Header (Page header) -->
+      <section class="content-header">
+        <h1>
+          Inicio
+          <small>Estado de los nodos</small>
+        </h1>
+        <ol class="breadcrumb">
+          <li><a href="#"><i class="fa fa-dashboard"></i> Inicio</a></li>
+          <!-- <li class="active">Inicio</li> -->
+        </ol>
+      </section>
+
+      <!-- Main content -->
+      <section class="content">
+
+        <!-- top row -->
+        <div class="row">
+          <div class="col-md-12">
+
+
+
+            <script type="text/javascript">
+            {% autoescape off %}
+            ;(function($) {
+              $(function() {
+                $('#fon1').bind('click', function(f1) {
+                  f1.preventDefault();
+                  $('#rosavientos1').bPopup();
+                });
+              });
+            })(jQuery);
+
+            ;(function($) {
+              $(function() {
+                $('#fon2').bind('click', function(f2) {
+                  f2.preventDefault();
+                  $('#rosavientos2').bPopup();
+                });
+              });
+            })(jQuery);
+
+            ;(function($) {
+              $(function() {
+                $('#fon3').bind('click', function(f3) {
+                  f3.preventDefault();
+                  $('#rosavientos3').bPopup();
+                });
+              });
+            })(jQuery);
+
+            ;(function($) {
+              $(function() {
+                $('#fon4').bind('click', function(f4) {
+                  f4.preventDefault();
+                  $('#rosavientos4').bPopup();
+                });
+              });
+            })(jQuery);
+
+            ;(function($) {
+              $(function() {
+                $('#fon5').bind('click', function(f5) {
+                  f5.preventDefault();
+                  $('#rosavientos5').bPopup();
+                });
+              });
+            })(jQuery);
+
+            ;(function($) {
+              $(function() {
+                $('#fon6').bind('click', function(f6) {
+                  f6.preventDefault();
+                  $('#rosavientos6').bPopup();
+                });
+              });
+            })(jQuery);
+            {% endautoescape %}
+            </script>
+
+            <script type="text/javascript">
+            {% autoescape off %}
+            ;(function($) {
+              $(function() {
+                $('#fon7').bind('click', function(f7) {
+                  f7.preventDefault();
+                  $('#rosavientos7').bPopup();
+                });
+              });
+            })(jQuery);
+            {% endautoescape %}
+            </script>
+
+            <script type="text/javascript">
+            {% autoescape off %}
+            ;(function($) {
+              $(function() {
+                $('#fon8').bind('click', function(f8) {
+                  f8.preventDefault();
+                  $('#rosavientos8').bPopup();
+                });
+              });
+            })(jQuery);
+            {% endautoescape %}
+            </script>
+
+            <script type="text/javascript">
+            {% autoescape off %}
+            ;(function($) {
+              $(function() {
+                $('#fon9').bind('click', function(f9) {
+                  f9.preventDefault();
+                  $('#rosavientos9').bPopup();
+                });
+              });
+            })(jQuery);
+            {% endautoescape %}
+            </script>
+
+            <script type="text/javascript">
+            {% autoescape off %}
+            ;(function($) {
+              $(function() {
+                $('#fon10').bind('click', function(f10) {
+                  f10.preventDefault();
+                  $('#rosavientos10').bPopup();
+                });
+              });
+            })(jQuery);
+            {% endautoescape %}
+            </script>
+
+            <script type="text/javascript">
+            {% autoescape off %}
+            ;(function($) {
+              $(function() {
+                $('#fon11').bind('click', function(f11) {
+                  f11.preventDefault();
+                  $('#rosavientos11').bPopup();
+                });
+              });
+            })(jQuery);
+            {% endautoescape %}
+            </script>
+
+
+
+
+
+
+            <img src="/static/plano1.jpg"  alt="Plano de la planta" usemap="#imgmap201451218219">
+            <map id="imgmap201451218219" name="imgmap201451218219">
+              <area shape="circle" id="fon6" alt="Fonera 6" title="" coords="162,118,30" href="fon6" target="" />
+              <area shape="circle" id="fon2" alt="Fonera 2" title="" coords="322,50,29" href="fon2" target="" /><area shape="circle" id="fon7" alt="Fonera 7" title="" coords="418,52,29" href="fon7" target="" />
+              <area shape="circle" id="fon8" alt="Fonera 8" title="" coords="375,120,29" href="fon8" target="" />
+              <area shape="circle" id="fon9" alt="Fonera 9" title="" coords="308,184,38" href="fon9" target="" />
+              <area shape="circle" id="fon4" alt="Fonera 4" title="" coords="128,458,28" href="fon4" target="" />
+              <area shape="circle" id="fon11" alt="Fonera 11" title="" coords="103,539,31" href="fon11" target="" />
+              <area shape="circle" id="fon5" alt="Fonera 5" title="" coords="399,564,28" href="fon5" target="" />
+              <area shape="circle" id="fon10" alt="Fonera 10" title="" coords="455,568,25" href="fon10" target="" />
+              <area shape="circle" id="fon1" alt="Fonera 1" title="" coords="360,639,28" href="fon1" target="" />
+              <area shape="circle" id="fon3" alt="Fonera 3" title="" coords="467,640,28" href="fon3" target="" /></map>
+
+              <div id="rosavientos1" style="display:none; min-width: 420px; max-width: 600px; height: 400px; margin: 0 auto"></div>
+
+              <div style="display:none">
+                <table id="freq1" border="0" cellspacing="0" cellpadding="0">
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th colspan="9" class="hdr">Table of Frequencies (percent)</th>
+                  </tr>
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th class="freq">Direction</th>
+                    <th class="freq">&lt; Throughput</th>
+                  </tr>
+                  {% if clave_trazas %}{% for trazas in clave_trazas %}{% if trazas.fonera_id == "Fon1" and trazas.ultimo_pcap == "si" %}<tr nowrap><td class="dir">{{trazas.canal}}</td><td class="data">{{trazas.throughput}}</td></tr>{% endif %}{% endfor %}{% endif %}
+                </table>
+              </div>
+
+
+
+              <div id="rosavientos2" style="display:none; min-width: 420px; max-width: 600px; height: 400px; margin: 0 auto"></div>
+
+              <div style="display:none">
+                <table id="freq2" border="0" cellspacing="0" cellpadding="0">
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th colspan="9" class="hdr">Table of Frequencies (percent)</th>
+                  </tr>
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th class="freq">Direction</th>
+                    <th class="freq">&lt; Throughput</th>
+                  </tr>
+                  {% if clave_trazas %}{% for trazas in clave_trazas %}{% if trazas.fonera_id == "Fon2" and trazas.ultimo_pcap == "si" %}<tr nowrap><td class="dir">{{trazas.canal}}</td><td class="data">{{trazas.throughput}}</td></tr>{% endif %}{% endfor %}{% endif %}
+                </table>
+              </div>
+
+
+
+              <div id="rosavientos3" style="display:none; min-width: 420px; max-width: 600px; height: 400px; margin: 0 auto"></div>
+
+              <div style="display:none">
+                <table id="freq3" border="0" cellspacing="0" cellpadding="0">
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th colspan="9" class="hdr">Table of Frequencies (percent)</th>
+                  </tr>
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th class="freq">Direction</th>
+                    <th class="freq">&lt; Throughput</th>
+                  </tr>
+                  {% if clave_trazas %}{% for trazas in clave_trazas %}{% if trazas.fonera_id == "Fon3" and trazas.ultimo_pcap == "si" %}<tr nowrap><td class="dir">{{trazas.canal}}</td><td class="data">{{trazas.throughput}}</td></tr>{% endif %}{% endfor %}{% endif %}
+                </table>
+              </div>
+
+
+
+              <div id="rosavientos4" style="display:none; min-width: 420px; max-width: 600px; height: 400px; margin: 0 auto"></div>
+
+              <div style="display:none">
+                <table id="freq4" border="0" cellspacing="0" cellpadding="0">
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th colspan="9" class="hdr">Table of Frequencies (percent)</th>
+                  </tr>
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th class="freq">Direction</th>
+                    <th class="freq">&lt; Throughput</th>
+                  </tr>
+                  {% if clave_trazas %}{% for trazas in clave_trazas %}{% if trazas.fonera_id == "Fon4" and trazas.ultimo_pcap == "si" %}<tr nowrap><td class="dir">{{trazas.canal}}</td><td class="data">{{trazas.throughput}}</td></tr>{% endif %}{% endfor %}{% endif %}
+                </table>
+              </div>
+
+
+              <div id="rosavientos5" style="display:none; min-width: 420px; max-width: 600px; height: 400px; margin: 0 auto"></div>
+
+              <div style="display:none">
+                <table id="freq5" border="0" cellspacing="0" cellpadding="0">
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th colspan="9" class="hdr">Table of Frequencies (percent)</th>
+                  </tr>
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th class="freq">Direction</th>
+                    <th class="freq">&lt; Throughput</th>
+                  </tr>
+                  {% if clave_trazas %}{% for trazas in clave_trazas %}{% if trazas.fonera_id == "Fon5" and trazas.ultimo_pcap == "si" %}<tr nowrap><td class="dir">{{trazas.canal}}</td><td class="data">{{trazas.throughput}}</td></tr>{% endif %}{% endfor %}{% endif %}
+                </table>
+              </div>
+
+              <div id="rosavientos6" style="display:none; min-width: 420px; max-width: 600px; height: 400px; margin: 0 auto"></div>
+
+              <div style="display:none">
+                <table id="freq6" border="0" cellspacing="0" cellpadding="0">
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th colspan="9" class="hdr">Table of Frequencies (percent)</th>
+                  </tr>
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th class="freq">Direction</th>
+                    <th class="freq">&lt; Throughput</th>
+                  </tr>
+                  {% if clave_trazas %}{% for trazas in clave_trazas %}{% if trazas.fonera_id == "Fon6" and trazas.ultimo_pcap == "si" %}<tr nowrap><td class="dir">{{trazas.canal}}</td><td class="data">{{trazas.throughput}}</td></tr>{% endif %}{% endfor %}{% endif %}
+                </table>
+              </div>
+
+              <div id="rosavientos7" style="display:none; min-width: 420px; max-width: 600px; height: 400px; margin: 0 auto"></div>
+
+              <div style="display:none">
+                <table id="freq7" border="0" cellspacing="0" cellpadding="0">
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th colspan="9" class="hdr">Table of Frequencies (percent)</th>
+                  </tr>
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th class="freq">Direction</th>
+                    <th class="freq">&lt; Throughput</th>
+                  </tr>
+                  {% if clave_trazas %}{% for trazas in clave_trazas %}{% if trazas.fonera_id == "Fon7" and trazas.ultimo_pcap == "si" %}<tr nowrap><td class="dir">{{trazas.canal}}</td><td class="data">{{trazas.throughput}}</td></tr>{% endif %}{% endfor %}{% endif %}
+                </table>
+              </div>
+
+              <div id="rosavientos8" style="display:none; min-width: 420px; max-width: 600px; height: 400px; margin: 0 auto"></div>
+
+              <div style="display:none">
+                <table id="freq8" border="0" cellspacing="0" cellpadding="0">
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th colspan="9" class="hdr">Table of Frequencies (percent)</th>
+                  </tr>
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th class="freq">Direction</th>
+                    <th class="freq">&lt; Throughput</th>
+                  </tr>
+                  {% if clave_trazas %}{% for trazas in clave_trazas %}{% if trazas.fonera_id == "Fon8" and trazas.ultimo_pcap == "si" %}<tr nowrap><td class="dir">{{trazas.canal}}</td><td class="data">{{trazas.throughput}}</td></tr>{% endif %}{% endfor %}{% endif %}
+                </table>
+              </div>
+
+              <div id="rosavientos9" style="display:none; min-width: 420px; max-width: 600px; height: 400px; margin: 0 auto"></div>
+
+              <div style="display:none">
+                <table id="freq9" border="0" cellspacing="0" cellpadding="0">
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th colspan="9" class="hdr">Table of Frequencies (percent)</th>
+                  </tr>
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th class="freq">Direction</th>
+                    <th class="freq">&lt; Throughput</th>
+                  </tr>
+                  {% if clave_trazas %}{% for trazas in clave_trazas %}{% if trazas.fonera_id == "Fon9" and trazas.ultimo_pcap == "si" %}<tr nowrap><td class="dir">{{trazas.canal}}</td><td class="data">{{trazas.throughput}}</td></tr>{% endif %}{% endfor %}{% endif %}
+                </table>
+              </div>
+
+              <div id="rosavientos10" style="display:none; min-width: 420px; max-width: 600px; height: 400px; margin: 0 auto"></div>
+
+              <div style="display:none">
+                <table id="freq10" border="0" cellspacing="0" cellpadding="0">
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th colspan="9" class="hdr">Table of Frequencies (percent)</th>
+                  </tr>
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th class="freq">Direction</th>
+                    <th class="freq">&lt; Throughput</th>
+                  </tr>
+                  {% if clave_trazas %}{% for trazas in clave_trazas %}{% if trazas.fonera_id == "Fon10" and trazas.ultimo_pcap == "si" %}<tr nowrap><td class="dir">{{trazas.canal}}</td><td class="data">{{trazas.throughput}}</td></tr>{% endif %}{% endfor %}{% endif %}
+                </table>
+              </div>
+
+              <div id="rosavientos11" style="display:none; min-width: 420px; max-width: 600px; height: 400px; margin: 0 auto"></div>
+
+              <div style="display:none">
+                <table id="freq11" border="0" cellspacing="0" cellpadding="0">
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th colspan="9" class="hdr">Table of Frequencies (percent)</th>
+                  </tr>
+                  <tr nowrap bgcolor="#CCCCFF">
+                    <th class="freq">Direction</th>
+                    <th class="freq">&lt; Throughput</th>
+                  </tr>
+                  {% if clave_trazas %}{% for trazas in clave_trazas %}{% if trazas.fonera_id == "Fon11" and trazas.ultimo_pcap == "si" %}<tr nowrap><td class="dir">{{trazas.canal}}</td><td class="data">{{trazas.throughput}}</td></tr>{% endif %}{% endfor %}{% endif %}
+                </table>
+              </div>
+
+<script language="javascript" type="text/javascript" src="/static/rosasvientos.js"></script>
+
+
+                
+
+
+</div><!-- /.col -->
+</div>
+<!-- /.row -->
+
+<!-- Main row -->
+<div class="row">
+
+
+
+
+  <div class="box box-solid">
+    <div class="box-header">
+      <h3 class="box-title"><i class="fa fa-hdd-o fa-lg"></i> <span>Estado de las foneras</span></h3>
+    </div><!-- /.box-header -->
+    <div class="box-body">
+      <div class="box-group" id="accordion">
+        <!-- we are adding the .panel class so bootstrap.js collapse plugin detects it -->
+        <div class="panel box box-primary">
+          <div class="box-header">
+            <h4 class="box-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                <i class="fa fa-table fa-lg"></i> <span>Tabla de registros</span>
+              </a>
+            </h4>
+          </div>
+          {# Primer colapsable #}
+          <div id="collapseOne" class="panel-collapse collapse">
+            <div class="box-body">
+
+
+              {# Opción theme de tabla del estado de las foneras #}
+              <div class="row">
+                <div class="col-xs-12">
+                  <div class="box">
+                    <div class="box-body table-responsive no-padding">
+                      <table class="table table-hover">
+                        <tr><th>ID Fonera</th><th>Localización en dpto</th><th>IP</th><th>Último registro</th><th>Último reinicio</th><th>% de disco ocupado</th><th>Ruta de archivos remotos en fonera</th><th>Ruta de archivos remotos en servidor</th></tr>
+
+                        {% if clave_ef %}
+                        {% for estado_foneras in clave_ef %}{% if estado_foneras.ruta_mnt_servidor != "ruta" %}
+                        <tr><td><span class="badge bg-green">{{ estado_foneras.fonera_id }}</span></td><td>{{ estado_foneras.localizacion }}</td><td>{{ estado_foneras.ip }}</td><td>{{ estado_foneras.ultimo_reg }}</td><td>{{ estado_foneras.ultimo_rei }}</td><td><code>{{ estado_foneras.tmp_ocupado }}</code></td><td>{{ estado_foneras.ruta_mnt_fonera }}</td><td>{{ estado_foneras.ruta_mnt_servidor }}</td></tr>
+                        {% else %}
+                        <tr><td><span class="badge bg-red">{{ estado_foneras.fonera_id }}</span></td><td>Consultar mapa de planta</td><td>Desconectada</td><td>{{ estado_foneras.ultimo_reg }}</td><td>{{ estado_foneras.ultimo_rei }}</td><td>No disponible</td><td>No disponible</td><td>No disponible</td></tr>
+                        {% endif %}{% endfor %}
+                        {% else %}
+                        <p>No hay registros de foneras disponibles!</p>
+                        {% endif %}
+                      </table>
+                    </div><!-- /.box-body -->
+                  </div><!-- /.box -->
+                </div>
+              </div>
+
+
+              {# Otra opción de tabla, menos bonita? #}
+              <div class="datagrid"><table>
+                <thead><tr><th>ID Fonera</th><th>Localización en dpto</th><th>IP</th><th>Último registro</th><th>Último reinicio</th><th>% de disco ocupado</th><th>Ruta de archivos remotos en fonera</th><th>Ruta de archivos remotos en servidor</th></tr></thead>
+                <tbody>
+                  {% if clave_ef %}
+                  {% for estado_foneras in clave_ef %}
+                  <tr class="alt"><td>{{ estado_foneras.fonera_id }}</td><td>{{ estado_foneras.localizacion }}</td><td>{{ estado_foneras.ip }}</td><td>{{ estado_foneras.ultimo_reg }}</td><td>{{ estado_foneras.ultimo_rei }}</td><td>{{ estado_foneras.tmp_ocupado }}</td><td>{{ estado_foneras.ruta_mnt_fonera }}</td><td>{{ estado_foneras.ruta_mnt_servidor }}</td></tr>
+                  {% endfor %}
+                  {% else %}
+                  <p>No hay registros de foneras disponibles!</p>
+                  {% endif %}
+                </tbody>
+              </table></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel box box-danger">
+          <div class="box-header">
+            <h4 class="box-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                <i class="fa fa-bar-chart-o fa-lg"></i> <span>Gráficos con la carga de CPU</span> 
+              </a>
+            </h4>
+          </div>
+          {# Segundo colapsable #}
+          <div id="collapseTwo" class="panel-collapse collapse">
+            <div class="box-body">
+             <div class="row">
+              <div class="col-md-3">
+                <div id="containerCPU2" style="min-width: 170px; max-width: 300px; height: 220px; margin: 1em auto"></div>
+                <script type="text/javascript">
+                {% autoescape off %}
+
+
+                $(function () {
+                  $(document).ready(function () {
+                    $('#containerCPU2').highcharts({
+                      chart: {
+                        type: 'gauge',
+                        plotBackgroundColor: null,
+                        plotBackgroundImage: null,
+                        plotBorderWidth: 0,
+                        plotShadow: false
+                      },
+                      title: {
+                        text: 'Carga CPU Fonera 2'
+                      },
+                      pane: {
+                        startAngle: -150,
+                        endAngle: 150,
+                        background: [{
+                          backgroundColor: {
+                            linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                            stops: [
+                            [0, '#FFF'],
+                            [1, '#333']
+                            ]
+                          },
+                          borderWidth: 0,
+                          outerRadius: '109%'
+                        }, {
+                          backgroundColor: {
+                            linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                            stops: [
+                            [0, '#333'],
+                            [1, '#FFF']
+                            ]
+                          },
+                          borderWidth: 1,
+                          outerRadius: '107%'
+                        }, {
+                  // default background
+                }, {
+                  backgroundColor: '#DDD',
+                  borderWidth: 0,
+                  outerRadius: '105%',
+                  innerRadius: '103%'
+                }]
+              },
+
+          // the value axis
+          yAxis: {
+            min: 0,
+            max: 200,
+
+            minorTickInterval: 'auto',
+            minorTickWidth: 1,
+            minorTickLength: 10,
+            minorTickPosition: 'inside',
+            minorTickColor: '#666',
+
+            tickPixelInterval: 30,
+            tickWidth: 2,
+            tickPosition: 'inside',
+            tickLength: 10,
+            tickColor: '#666',
+            labels: {
+              step: 2,
+              rotation: 'auto'
+            },
+            title: {
+              text: '%'
+            },
+            plotBands: [{
+              from: 0,
+              to: 100,
+                  color: '#55BF3B' // green
+                }, {
+                  from: 100,
+                  to: 150,
+                  color: '#DDDF0D' // yellow
+                }, {
+                  from: 150,
+                  to: 200,
+                  color: '#DF5353' // red
+                }]        
+              },
+
+              series: [{
+                name: 'Carga',
+                data: [
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon2" %}
+                {{ estado_foneras.carga_cpu }}
+                {% endif %}{% endfor %}{% endif %}*100
+                ],
+                tooltip: {
+                  valueSuffix: ' %'
+                }
+              }]
+
+
+            }, 
+            function (chart) {
+              if (!chart.renderer.forExport) {
+                var point = chart.series[0].points[0];
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon2" %}
+                newVal = {{ estado_foneras.carga_cpu }}*100;
+                {% endif %}{% endfor %}{% endif %}
+                point.update(newVal);
+              }
+            });
+});
+});
+{% endautoescape %}
+</script>
+
+</div>
+
+<div class="col-md-3">
+  <div id="containerCPU1" style="min-width: 170px; max-width: 300px; height: 220px; margin: 1em auto"></div>
+  <script type="text/javascript">
+  {% autoescape off %}
+
+
+  $(function () {
+    $(document).ready(function () {
+      $('#containerCPU1').highcharts({
+        chart: {
+          type: 'gauge',
+          plotBackgroundColor: null,
+          plotBackgroundImage: null,
+          plotBorderWidth: 0,
+          plotShadow: false
+        },
+        title: {
+          text: 'Carga CPU Fonera 1'
+        },
+        pane: {
+          startAngle: -150,
+          endAngle: 150,
+          background: [{
+            backgroundColor: {
+              linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+              stops: [
+              [0, '#FFF'],
+              [1, '#333']
+              ]
+            },
+            borderWidth: 0,
+            outerRadius: '109%'
+          }, {
+            backgroundColor: {
+              linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+              stops: [
+              [0, '#333'],
+              [1, '#FFF']
+              ]
+            },
+            borderWidth: 1,
+            outerRadius: '107%'
+          }, {
+                  // default background
+                }, {
+                  backgroundColor: '#DDD',
+                  borderWidth: 0,
+                  outerRadius: '105%',
+                  innerRadius: '103%'
+                }]
+              },
+
+          // the value axis
+          yAxis: {
+            min: 0,
+            max: 200,
+
+            minorTickInterval: 'auto',
+            minorTickWidth: 1,
+            minorTickLength: 10,
+            minorTickPosition: 'inside',
+            minorTickColor: '#666',
+
+            tickPixelInterval: 30,
+            tickWidth: 2,
+            tickPosition: 'inside',
+            tickLength: 10,
+            tickColor: '#666',
+            labels: {
+              step: 2,
+              rotation: 'auto'
+            },
+            title: {
+              text: '%'
+            },
+            plotBands: [{
+              from: 0,
+              to: 100,
+                  color: '#55BF3B' // green
+                }, {
+                  from: 100,
+                  to: 150,
+                  color: '#DDDF0D' // yellow
+                }, {
+                  from: 150,
+                  to: 200,
+                  color: '#DF5353' // red
+                }]        
+              },
+
+              series: [{
+                name: 'Carga',
+                data: [
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon1" %}
+                {{ estado_foneras.carga_cpu }}
+                {% endif %}{% endfor %}{% endif %}*100
+                ],
+                tooltip: {
+                  valueSuffix: ' %'
+                }
+              }]
+
+
+            }, 
+            function (chart) {
+              if (!chart.renderer.forExport) {
+                var point = chart.series[0].points[0];
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon1" %}
+                newVal = {{ estado_foneras.carga_cpu }}*100;
+                {% endif %}{% endfor %}{% endif %}
+                point.update(newVal);
+              }
+            });
+});
+});
+{% endautoescape %}
+</script>
+
+</div> {# md #}
+
+<div class="col-md-3">
+  <div id="containerCPU3" style="min-width: 170px; max-width: 300px; height: 220px; margin: 1em auto"></div>
+  <script type="text/javascript">
+  {% autoescape off %}
+  $(function () {
+    $(document).ready(function () {
+      $('#containerCPU3').highcharts({
+        chart: {
+          type: 'gauge',
+          plotBackgroundColor: null,
+          plotBackgroundImage: null,
+          plotBorderWidth: 0,
+          plotShadow: false
+        },
+        title: {
+          text: 'Carga CPU Fonera 3'
+        },
+        pane: {
+          startAngle: -150,
+          endAngle: 150,
+          background: [{
+            backgroundColor: {
+              linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+              stops: [
+              [0, '#FFF'],
+              [1, '#333']
+              ]
+            },
+            borderWidth: 0,
+            outerRadius: '109%'
+          }, {
+            backgroundColor: {
+              linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+              stops: [
+              [0, '#333'],
+              [1, '#FFF']
+              ]
+            },
+            borderWidth: 1,
+            outerRadius: '107%'
+          }, {
+                  // default background
+                }, {
+                  backgroundColor: '#DDD',
+                  borderWidth: 0,
+                  outerRadius: '105%',
+                  innerRadius: '103%'
+                }]
+              },
+
+          // the value axis
+          yAxis: {
+            min: 0,
+            max: 200,
+
+            minorTickInterval: 'auto',
+            minorTickWidth: 1,
+            minorTickLength: 10,
+            minorTickPosition: 'inside',
+            minorTickColor: '#666',
+
+            tickPixelInterval: 30,
+            tickWidth: 2,
+            tickPosition: 'inside',
+            tickLength: 10,
+            tickColor: '#666',
+            labels: {
+              step: 2,
+              rotation: 'auto'
+            },
+            title: {
+              text: '%'
+            },
+            plotBands: [{
+              from: 0,
+              to: 100,
+                  color: '#55BF3B' // green
+                }, {
+                  from: 100,
+                  to: 150,
+                  color: '#DDDF0D' // yellow
+                }, {
+                  from: 150,
+                  to: 200,
+                  color: '#DF5353' // red
+                }]        
+              },
+
+              series: [{
+                name: 'Carga',
+                data: [
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon3" %}
+                {{ estado_foneras.carga_cpu }}
+                {% endif %}{% endfor %}{% endif %}*100
+                ],
+                tooltip: {
+                  valueSuffix: ' %'
+                }
+              }]
+
+
+            }, 
+            function (chart) {
+              if (!chart.renderer.forExport) {
+                var point = chart.series[0].points[0];
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon3" %}
+                newVal = {{ estado_foneras.carga_cpu }}*100;
+                {% endif %}{% endfor %}{% endif %}
+                point.update(newVal);
+              }
+            });
+});
+});
+{% endautoescape %}
+</script>
+
+</div>
+
+
+
+
+<div class="col-md-3">
+  <div id="containerCPU4" style="min-width: 170px; max-width: 300px; height: 220px; margin: 1em auto"></div>
+  <script type="text/javascript">
+  {% autoescape off %}
+  $(function () {
+    $(document).ready(function () {
+      $('#containerCPU4').highcharts({
+        chart: {
+          type: 'gauge',
+          plotBackgroundColor: null,
+          plotBackgroundImage: null,
+          plotBorderWidth: 0,
+          plotShadow: false
+        },
+        title: {
+          text: 'Carga CPU Fonera 4'
+        },
+        pane: {
+          startAngle: -150,
+          endAngle: 150,
+          background: [{
+            backgroundColor: {
+              linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+              stops: [
+              [0, '#FFF'],
+              [1, '#333']
+              ]
+            },
+            borderWidth: 0,
+            outerRadius: '109%'
+          }, {
+            backgroundColor: {
+              linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+              stops: [
+              [0, '#333'],
+              [1, '#FFF']
+              ]
+            },
+            borderWidth: 1,
+            outerRadius: '107%'
+          }, {
+                  // default background
+                }, {
+                  backgroundColor: '#DDD',
+                  borderWidth: 0,
+                  outerRadius: '105%',
+                  innerRadius: '103%'
+                }]
+              },
+
+          // the value axis
+          yAxis: {
+            min: 0,
+            max: 200,
+
+            minorTickInterval: 'auto',
+            minorTickWidth: 1,
+            minorTickLength: 10,
+            minorTickPosition: 'inside',
+            minorTickColor: '#666',
+
+            tickPixelInterval: 30,
+            tickWidth: 2,
+            tickPosition: 'inside',
+            tickLength: 10,
+            tickColor: '#666',
+            labels: {
+              step: 2,
+              rotation: 'auto'
+            },
+            title: {
+              text: '%'
+            },
+            plotBands: [{
+              from: 0,
+              to: 100,
+                  color: '#55BF3B' // green
+                }, {
+                  from: 100,
+                  to: 150,
+                  color: '#DDDF0D' // yellow
+                }, {
+                  from: 150,
+                  to: 200,
+                  color: '#DF5353' // red
+                }]        
+              },
+
+              series: [{
+                name: 'Carga',
+                data: [
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon4" %}
+                {{ estado_foneras.carga_cpu }}
+                {% endif %}{% endfor %}{% endif %}*100
+                ],
+                tooltip: {
+                  valueSuffix: ' %'
+                }
+              }]
+
+
+            }, 
+            function (chart) {
+              if (!chart.renderer.forExport) {
+                var point = chart.series[0].points[0];
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon4" %}
+                newVal = {{ estado_foneras.carga_cpu }}*100;
+                {% endif %}{% endfor %}{% endif %}
+                point.update(newVal);
+              }
+            });
+});
+});
+{% endautoescape %}
+</script>
+
+</div>
+
+</div> {# row #}
+
+
+
+<div class="row">
+  <div class="col-md-3">
+    <div id="containerCPU5" style="min-width: 170px; max-width: 300px; height: 220px; margin: 1em auto"></div>
+    <script type="text/javascript">
+    {% autoescape off %}
+
+
+    $(function () {
+      $(document).ready(function () {
+        $('#containerCPU5').highcharts({
+          chart: {
+            type: 'gauge',
+            plotBackgroundColor: null,
+            plotBackgroundImage: null,
+            plotBorderWidth: 0,
+            plotShadow: false
+          },
+          title: {
+            text: 'Carga CPU Fonera 5'
+          },
+          pane: {
+            startAngle: -150,
+            endAngle: 150,
+            background: [{
+              backgroundColor: {
+                linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                stops: [
+                [0, '#FFF'],
+                [1, '#333']
+                ]
+              },
+              borderWidth: 0,
+              outerRadius: '109%'
+            }, {
+              backgroundColor: {
+                linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                stops: [
+                [0, '#333'],
+                [1, '#FFF']
+                ]
+              },
+              borderWidth: 1,
+              outerRadius: '107%'
+            }, {
+                  // default background
+                }, {
+                  backgroundColor: '#DDD',
+                  borderWidth: 0,
+                  outerRadius: '105%',
+                  innerRadius: '103%'
+                }]
+              },
+
+          // the value axis
+          yAxis: {
+            min: 0,
+            max: 200,
+
+            minorTickInterval: 'auto',
+            minorTickWidth: 1,
+            minorTickLength: 10,
+            minorTickPosition: 'inside',
+            minorTickColor: '#666',
+
+            tickPixelInterval: 30,
+            tickWidth: 2,
+            tickPosition: 'inside',
+            tickLength: 10,
+            tickColor: '#666',
+            labels: {
+              step: 2,
+              rotation: 'auto'
+            },
+            title: {
+              text: '%'
+            },
+            plotBands: [{
+              from: 0,
+              to: 100,
+                  color: '#55BF3B' // green
+                }, {
+                  from: 100,
+                  to: 150,
+                  color: '#DDDF0D' // yellow
+                }, {
+                  from: 150,
+                  to: 200,
+                  color: '#DF5353' // red
+                }]        
+              },
+
+              series: [{
+                name: 'Carga',
+                data: [
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon5" %}
+                {{ estado_foneras.carga_cpu }}
+                {% endif %}{% endfor %}{% endif %}*100
+                ],
+                tooltip: {
+                  valueSuffix: ' %'
+                }
+              }]
+
+
+            }, 
+            function (chart) {
+              if (!chart.renderer.forExport) {
+                var point = chart.series[0].points[0];
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon5" %}
+                newVal = {{ estado_foneras.carga_cpu }}*100;
+                {% endif %}{% endfor %}{% endif %}
+                point.update(newVal);
+              }
+            });
+});
+});
+{% endautoescape %}
+</script>
+
+</div>
+
+<div class="col-md-3">
+  <div id="containerCPU6" style="min-width: 170px; max-width: 300px; height: 220px; margin: 1em auto"></div>
+  <script type="text/javascript">
+  {% autoescape off %}
+
+
+  $(function () {
+    $(document).ready(function () {
+      $('#containerCPU6').highcharts({
+        chart: {
+          type: 'gauge',
+          plotBackgroundColor: null,
+          plotBackgroundImage: null,
+          plotBorderWidth: 0,
+          plotShadow: false
+        },
+        title: {
+          text: 'Carga CPU Fonera 6'
+        },
+        pane: {
+          startAngle: -150,
+          endAngle: 150,
+          background: [{
+            backgroundColor: {
+              linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+              stops: [
+              [0, '#FFF'],
+              [1, '#333']
+              ]
+            },
+            borderWidth: 0,
+            outerRadius: '109%'
+          }, {
+            backgroundColor: {
+              linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+              stops: [
+              [0, '#333'],
+              [1, '#FFF']
+              ]
+            },
+            borderWidth: 1,
+            outerRadius: '107%'
+          }, {
+                  // default background
+                }, {
+                  backgroundColor: '#DDD',
+                  borderWidth: 0,
+                  outerRadius: '105%',
+                  innerRadius: '103%'
+                }]
+              },
+
+          // the value axis
+          yAxis: {
+            min: 0,
+            max: 200,
+
+            minorTickInterval: 'auto',
+            minorTickWidth: 1,
+            minorTickLength: 10,
+            minorTickPosition: 'inside',
+            minorTickColor: '#666',
+
+            tickPixelInterval: 30,
+            tickWidth: 2,
+            tickPosition: 'inside',
+            tickLength: 10,
+            tickColor: '#666',
+            labels: {
+              step: 2,
+              rotation: 'auto'
+            },
+            title: {
+              text: '%'
+            },
+            plotBands: [{
+              from: 0,
+              to: 100,
+                  color: '#55BF3B' // green
+                }, {
+                  from: 100,
+                  to: 150,
+                  color: '#DDDF0D' // yellow
+                }, {
+                  from: 150,
+                  to: 200,
+                  color: '#DF5353' // red
+                }]        
+              },
+
+              series: [{
+                name: 'Carga',
+                data: [
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon6" %}
+                {{ estado_foneras.carga_cpu }}
+                {% endif %}{% endfor %}{% endif %}*100
+                ],
+                tooltip: {
+                  valueSuffix: ' %'
+                }
+              }]
+
+
+            }, 
+            function (chart) {
+              if (!chart.renderer.forExport) {
+                var point = chart.series[0].points[0];
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon6" %}
+                newVal = {{ estado_foneras.carga_cpu }}*100;
+                {% endif %}{% endfor %}{% endif %}
+                point.update(newVal);
+              }
+            });
+});
+});
+{% endautoescape %}
+</script>
+
+</div> {# md #}
+
+<div class="col-md-3">
+  <div id="containerCPU7" style="min-width: 170px; max-width: 300px; height: 220px; margin: 1em auto"></div>
+  <script type="text/javascript">
+  {% autoescape off %}
+  $(function () {
+    $(document).ready(function () {
+      $('#containerCPU7').highcharts({
+        chart: {
+          type: 'gauge',
+          plotBackgroundColor: null,
+          plotBackgroundImage: null,
+          plotBorderWidth: 0,
+          plotShadow: false
+        },
+        title: {
+          text: 'Carga CPU Fonera 7'
+        },
+        pane: {
+          startAngle: -150,
+          endAngle: 150,
+          background: [{
+            backgroundColor: {
+              linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+              stops: [
+              [0, '#FFF'],
+              [1, '#333']
+              ]
+            },
+            borderWidth: 0,
+            outerRadius: '109%'
+          }, {
+            backgroundColor: {
+              linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+              stops: [
+              [0, '#333'],
+              [1, '#FFF']
+              ]
+            },
+            borderWidth: 1,
+            outerRadius: '107%'
+          }, {
+                  // default background
+                }, {
+                  backgroundColor: '#DDD',
+                  borderWidth: 0,
+                  outerRadius: '105%',
+                  innerRadius: '103%'
+                }]
+              },
+
+          // the value axis
+          yAxis: {
+            min: 0,
+            max: 200,
+
+            minorTickInterval: 'auto',
+            minorTickWidth: 1,
+            minorTickLength: 10,
+            minorTickPosition: 'inside',
+            minorTickColor: '#666',
+
+            tickPixelInterval: 30,
+            tickWidth: 2,
+            tickPosition: 'inside',
+            tickLength: 10,
+            tickColor: '#666',
+            labels: {
+              step: 2,
+              rotation: 'auto'
+            },
+            title: {
+              text: '%'
+            },
+            plotBands: [{
+              from: 0,
+              to: 100,
+                  color: '#55BF3B' // green
+                }, {
+                  from: 100,
+                  to: 150,
+                  color: '#DDDF0D' // yellow
+                }, {
+                  from: 150,
+                  to: 200,
+                  color: '#DF5353' // red
+                }]        
+              },
+
+              series: [{
+                name: 'Carga',
+                data: [
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon7" %}
+                {{ estado_foneras.carga_cpu }}
+                {% endif %}{% endfor %}{% endif %}*100
+                ],
+                tooltip: {
+                  valueSuffix: ' %'
+                }
+              }]
+
+
+            }, 
+            function (chart) {
+              if (!chart.renderer.forExport) {
+                var point = chart.series[0].points[0];
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon7" %}
+                newVal = {{ estado_foneras.carga_cpu }}*100;
+                {% endif %}{% endfor %}{% endif %}
+                point.update(newVal);
+              }
+            });
+});
+});
+{% endautoescape %}
+</script>
+
+</div>
+
+
+
+
+<div class="col-md-3">
+  <div id="containerCPU8" style="min-width: 170px; max-width: 300px; height: 220px; margin: 1em auto"></div>
+  <script type="text/javascript">
+  {% autoescape off %}
+  $(function () {
+    $(document).ready(function () {
+      $('#containerCPU8').highcharts({
+        chart: {
+          type: 'gauge',
+          plotBackgroundColor: null,
+          plotBackgroundImage: null,
+          plotBorderWidth: 0,
+          plotShadow: false
+        },
+        title: {
+          text: 'Carga CPU Fonera 8'
+        },
+        pane: {
+          startAngle: -150,
+          endAngle: 150,
+          background: [{
+            backgroundColor: {
+              linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+              stops: [
+              [0, '#FFF'],
+              [1, '#333']
+              ]
+            },
+            borderWidth: 0,
+            outerRadius: '109%'
+          }, {
+            backgroundColor: {
+              linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+              stops: [
+              [0, '#333'],
+              [1, '#FFF']
+              ]
+            },
+            borderWidth: 1,
+            outerRadius: '107%'
+          }, {
+                  // default background
+                }, {
+                  backgroundColor: '#DDD',
+                  borderWidth: 0,
+                  outerRadius: '105%',
+                  innerRadius: '103%'
+                }]
+              },
+
+          // the value axis
+          yAxis: {
+            min: 0,
+            max: 200,
+
+            minorTickInterval: 'auto',
+            minorTickWidth: 1,
+            minorTickLength: 10,
+            minorTickPosition: 'inside',
+            minorTickColor: '#666',
+
+            tickPixelInterval: 30,
+            tickWidth: 2,
+            tickPosition: 'inside',
+            tickLength: 10,
+            tickColor: '#666',
+            labels: {
+              step: 2,
+              rotation: 'auto'
+            },
+            title: {
+              text: '%'
+            },
+            plotBands: [{
+              from: 0,
+              to: 100,
+                  color: '#55BF3B' // green
+                }, {
+                  from: 100,
+                  to: 150,
+                  color: '#DDDF0D' // yellow
+                }, {
+                  from: 150,
+                  to: 200,
+                  color: '#DF5353' // red
+                }]        
+              },
+
+              series: [{
+                name: 'Carga',
+                data: [
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon8" %}
+                {{ estado_foneras.carga_cpu }}
+                {% endif %}{% endfor %}{% endif %}*100
+                ],
+                tooltip: {
+                  valueSuffix: ' %'
+                }
+              }]
+
+
+            }, 
+            function (chart) {
+              if (!chart.renderer.forExport) {
+                var point = chart.series[0].points[0];
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon8" %}
+                newVal = {{ estado_foneras.carga_cpu }}*100;
+                {% endif %}{% endfor %}{% endif %}
+                point.update(newVal);
+              }
+            });
+});
+});
+{% endautoescape %}
+</script>
+
+</div>
+
+</div> {# row #}
+
+
+<div class="row">
+  <div class="col-md-3">
+    <div id="containerCPU9" style="min-width: 170px; max-width: 300px; height: 220px; margin: 1em auto"></div>
+    <script type="text/javascript">
+    {% autoescape off %}
+
+
+    $(function () {
+      $(document).ready(function () {
+        $('#containerCPU9').highcharts({
+          chart: {
+            type: 'gauge',
+            plotBackgroundColor: null,
+            plotBackgroundImage: null,
+            plotBorderWidth: 0,
+            plotShadow: false
+          },
+          title: {
+            text: 'Carga CPU Fonera 9'
+          },
+          pane: {
+            startAngle: -150,
+            endAngle: 150,
+            background: [{
+              backgroundColor: {
+                linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                stops: [
+                [0, '#FFF'],
+                [1, '#333']
+                ]
+              },
+              borderWidth: 0,
+              outerRadius: '109%'
+            }, {
+              backgroundColor: {
+                linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                stops: [
+                [0, '#333'],
+                [1, '#FFF']
+                ]
+              },
+              borderWidth: 1,
+              outerRadius: '107%'
+            }, {
+                  // default background
+                }, {
+                  backgroundColor: '#DDD',
+                  borderWidth: 0,
+                  outerRadius: '105%',
+                  innerRadius: '103%'
+                }]
+              },
+
+          // the value axis
+          yAxis: {
+            min: 0,
+            max: 200,
+
+            minorTickInterval: 'auto',
+            minorTickWidth: 1,
+            minorTickLength: 10,
+            minorTickPosition: 'inside',
+            minorTickColor: '#666',
+
+            tickPixelInterval: 30,
+            tickWidth: 2,
+            tickPosition: 'inside',
+            tickLength: 10,
+            tickColor: '#666',
+            labels: {
+              step: 2,
+              rotation: 'auto'
+            },
+            title: {
+              text: '%'
+            },
+            plotBands: [{
+              from: 0,
+              to: 100,
+                  color: '#55BF3B' // green
+                }, {
+                  from: 100,
+                  to: 150,
+                  color: '#DDDF0D' // yellow
+                }, {
+                  from: 150,
+                  to: 200,
+                  color: '#DF5353' // red
+                }]        
+              },
+
+              series: [{
+                name: 'Carga',
+                data: [
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon9" %}
+                {{ estado_foneras.carga_cpu }}
+                {% endif %}{% endfor %}{% endif %}*100
+                ],
+                tooltip: {
+                  valueSuffix: ' %'
+                }
+              }]
+
+
+            }, 
+            function (chart) {
+              if (!chart.renderer.forExport) {
+                var point = chart.series[0].points[0];
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon9" %}
+                newVal = {{ estado_foneras.carga_cpu }}*100;
+                {% endif %}{% endfor %}{% endif %}
+                point.update(newVal);
+              }
+            });
+});
+});
+{% endautoescape %}
+</script>
+
+</div>
+
+<div class="col-md-3">
+  <div id="containerCPU10" style="min-width: 170px; max-width: 300px; height: 220px; margin: 1em auto"></div>
+  <script type="text/javascript">
+  {% autoescape off %}
+
+
+  $(function () {
+    $(document).ready(function () {
+      $('#containerCPU10').highcharts({
+        chart: {
+          type: 'gauge',
+          plotBackgroundColor: null,
+          plotBackgroundImage: null,
+          plotBorderWidth: 0,
+          plotShadow: false
+        },
+        title: {
+          text: 'Carga CPU Fonera 10'
+        },
+        pane: {
+          startAngle: -150,
+          endAngle: 150,
+          background: [{
+            backgroundColor: {
+              linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+              stops: [
+              [0, '#FFF'],
+              [1, '#333']
+              ]
+            },
+            borderWidth: 0,
+            outerRadius: '109%'
+          }, {
+            backgroundColor: {
+              linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+              stops: [
+              [0, '#333'],
+              [1, '#FFF']
+              ]
+            },
+            borderWidth: 1,
+            outerRadius: '107%'
+          }, {
+                  // default background
+                }, {
+                  backgroundColor: '#DDD',
+                  borderWidth: 0,
+                  outerRadius: '105%',
+                  innerRadius: '103%'
+                }]
+              },
+
+          // the value axis
+          yAxis: {
+            min: 0,
+            max: 200,
+
+            minorTickInterval: 'auto',
+            minorTickWidth: 1,
+            minorTickLength: 10,
+            minorTickPosition: 'inside',
+            minorTickColor: '#666',
+
+            tickPixelInterval: 30,
+            tickWidth: 2,
+            tickPosition: 'inside',
+            tickLength: 10,
+            tickColor: '#666',
+            labels: {
+              step: 2,
+              rotation: 'auto'
+            },
+            title: {
+              text: '%'
+            },
+            plotBands: [{
+              from: 0,
+              to: 100,
+                  color: '#55BF3B' // green
+                }, {
+                  from: 100,
+                  to: 150,
+                  color: '#DDDF0D' // yellow
+                }, {
+                  from: 150,
+                  to: 200,
+                  color: '#DF5353' // red
+                }]        
+              },
+
+              series: [{
+                name: 'Carga',
+                data: [
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon10" %}
+                {{ estado_foneras.carga_cpu }}
+                {% endif %}{% endfor %}{% endif %}*100
+                ],
+                tooltip: {
+                  valueSuffix: ' %'
+                }
+              }]
+
+
+            }, 
+            function (chart) {
+              if (!chart.renderer.forExport) {
+                var point = chart.series[0].points[0];
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon10" %}
+                newVal = {{ estado_foneras.carga_cpu }}*100;
+                {% endif %}{% endfor %}{% endif %}
+                point.update(newVal);
+              }
+            });
+});
+});
+{% endautoescape %}
+</script>
+
+</div> {# md #}
+
+<div class="col-md-3">
+  <div id="containerCPU11" style="min-width: 170px; max-width: 300px; height: 220px; margin: 1em auto"></div>
+  <script type="text/javascript">
+  {% autoescape off %}
+  $(function () {
+    $(document).ready(function () {
+      $('#containerCPU11').highcharts({
+        chart: {
+          type: 'gauge',
+          plotBackgroundColor: null,
+          plotBackgroundImage: null,
+          plotBorderWidth: 0,
+          plotShadow: false
+        },
+        title: {
+          text: 'Carga CPU Fonera 11'
+        },
+        pane: {
+          startAngle: -150,
+          endAngle: 150,
+          background: [{
+            backgroundColor: {
+              linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+              stops: [
+              [0, '#FFF'],
+              [1, '#333']
+              ]
+            },
+            borderWidth: 0,
+            outerRadius: '109%'
+          }, {
+            backgroundColor: {
+              linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+              stops: [
+              [0, '#333'],
+              [1, '#FFF']
+              ]
+            },
+            borderWidth: 1,
+            outerRadius: '107%'
+          }, {
+                  // default background
+                }, {
+                  backgroundColor: '#DDD',
+                  borderWidth: 0,
+                  outerRadius: '105%',
+                  innerRadius: '103%'
+                }]
+              },
+
+          // the value axis
+          yAxis: {
+            min: 0,
+            max: 200,
+
+            minorTickInterval: 'auto',
+            minorTickWidth: 1,
+            minorTickLength: 10,
+            minorTickPosition: 'inside',
+            minorTickColor: '#666',
+
+            tickPixelInterval: 30,
+            tickWidth: 2,
+            tickPosition: 'inside',
+            tickLength: 10,
+            tickColor: '#666',
+            labels: {
+              step: 2,
+              rotation: 'auto'
+            },
+            title: {
+              text: '%'
+            },
+            plotBands: [{
+              from: 0,
+              to: 100,
+                  color: '#55BF3B' // green
+                }, {
+                  from: 100,
+                  to: 150,
+                  color: '#DDDF0D' // yellow
+                }, {
+                  from: 150,
+                  to: 200,
+                  color: '#DF5353' // red
+                }]        
+              },
+
+              series: [{
+                name: 'Carga',
+                data: [
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon11" %}
+                {{ estado_foneras.carga_cpu }}
+                {% endif %}{% endfor %}{% endif %}*100
+                ],
+                tooltip: {
+                  valueSuffix: ' %'
+                }
+              }]
+
+
+            }, 
+            function (chart) {
+              if (!chart.renderer.forExport) {
+                var point = chart.series[0].points[0];
+                {% if clave_ef %}{% for estado_foneras in clave_ef %}{% if estado_foneras.fonera_id == "Fon11" %}
+                newVal = {{ estado_foneras.carga_cpu }}*100;
+                {% endif %}{% endfor %}{% endif %}
+                point.update(newVal);
+              }
+            });
+});
+});
+{% endautoescape %}
+</script>
+
+</div>
+
+
+
+</div> {# row #}
+
+
+</div>
+</div>
+</div>
+<div class="panel box box-success">
+  <div class="box-header">
+    <h4 class="box-title">
+      <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+        <i class="fa fa-files-o fa-lg"></i> <span>Logs del servidor</span> 
+      </a>
+    </h4>
+  </div>
+  <div id="collapseThree" class="panel-collapse collapse">
+    <div class="box-body">
+      Mediante un cron, ¿copiar a la carpeta de web el /var/mail/wifi-radar? 
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+
+<div class="panel box box-success">
+  <div class="box-header">
+    <h4 class="box-title">
+      <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
+        <i class="fa fa-files-o fa-lg"></i> <span>Logs de las foneras</span> 
+      </a>
+    </h4>
+  </div>
+  <div id="collapseFour" class="panel-collapse collapse">
+    <div class="box-body">
+      Mediante un cron, ¿copiar a la carpeta de web los log de errores de las foneras y leerlos aquí? 
+    </div>
+  </div>
+</div>
+</div>
+</div><!-- /.box-body -->
+</div><!-- /.box -->
+
+
+<div style="height:400px; width:100%; clear:both;"></div>
+
+
+
+{# QUITAR ESTOS #}
+<!-- Left col -->
+<section class="col-sm-12 connectedSortable"> 
+  <!-- Box (with bar chart) -->
+  <div class="box" id="loading-example" style="display:none;">
+    <div class="box-header">
+
+
+
+      <h3 class="box-title"></h3>
+    </div><!-- /.box-header -->
+    <div class="box-body no-padding">
+      <div class="row">
+        <div class="col-sm-12">
+          <!-- bar chart -->
+          <div class="chart" id="bar-chart" style="display:none; height: 2px;"></div>
+        </div>
+
+      </div><!-- /.row - inside box -->
+    </div><!-- /.box-body -->
+
+  </div><!-- /.box -->        
+
+  <!-- Custom tabs (Charts with tabs)-->
+  <div class="nav-tabs-custom">
+    <!-- Tabs within a box -->
+    <ul class="nav nav-tabs pull-right">
+      <li class="active"><a href="#revenue-chart" data-toggle="tab"></a></li>
+      <li><a href="#sales-chart" data-toggle="tab"></a></li>
+      <li class="pull-left header"></li>
+    </ul>
+    <div class="tab-content no-padding">
+      <!-- Morris chart - Sales -->
+      <div class="chart tab-pane active" id="revenue-chart" style="position: relative; height: 3px;"></div>
+      <div class="chart tab-pane" id="sales-chart" style="position: relative; height: 3px;"></div>
+    </div>
+  </div><!-- /.nav-tabs-custom -->
+
+
+
+
+
+</section><!-- /.Left col -->
+<!-- right col (We are only adding the ID to make the widgets sortable)-->
+<section class="col-lg-6 connectedSortable">
+
+
+
+
+
+</section><!-- right col -->
+</div><!-- /.row (main row) -->
+
+</section><!-- /.content -->
+</aside><!-- /.right-side -->
+</div><!-- ./wrapper -->
+
+<!-- add new calendar event modal -->
+
+
+
+
+</body>
+</html>
