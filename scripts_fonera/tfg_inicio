@@ -1,0 +1,40 @@
+#!/bin/sh /etc/rc.common
+
+# Script de inicio que debería encontrarse en las foneras en: /etc/init.d/
+#   Permisos: chmod +x /etc/init.d/iniciotfg 
+#   Link: /etc/init.d/iniciotfg enable
+
+START=99
+
+start() {
+  echo 'Iniciando scripts de monitorización'
+  touch /etc/archivos/log_errores
+  echo -e "***********************\nFonera iniciada $(date +%Y-%m-%d-%H-%M)" >> /etc/archivos/log_errores
+  echo GMT-2 > /etc/TZ && echo 'Establecida la zona horaria a GMT +1 (Madrid) +1h de cambio de h de verano' || echo "$(date): error al establecer la zona horaria" >> /etc/archivos/log_errores
+  mkdir -p /tmp/root/.ssh/ || echo "$(date): error al crear carpeta .ssh en /tmp/root/" >> /etc/archivos/log_errores # -p, --parents     no error if existing, make parent directories as needed
+  echo 'Almacenando clave ssh-rsa'
+  # echo "babosa.it.uc3m.es ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDPDRs91dFQCjjMJb/z4pEaBI7A/vGQzchbebzql5e7B5OBtLAS9NzlqVLYPf7YL+k4oEs0Arn+cb3L+RoqCTKdCHt4M9Q0iTLkkui8VBQRoujcWzMSssu48x3yqc3Nu4IxtAYK79sJULl1H8RGekibmZJsn6oFMUecXpTugHfE0zZRWnQS/eEf6Kin6c8NPujdVGdpCHBqc7YXn6gdcByDYr3ylWipoQq/99LGI0a49fDi2SP/lf2BScmZs2d9PyNMWkx1Hl94PWahI0pEQYGXCF5DpeBkopHdiQEJLtchaZKHyCws59nIfBK8kQK/CgyaQBUMDcVsQQKfskfY0iXN" > /tmp/root/.ssh/known_hosts
+  # echo "babosa.it.uc3m.es ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC/28xuKJKXU0K00BY0FRF0ZkDvwwxk/UX0miBxevRJ6cu5X00SFf4THSbq6AKRQujJhOS/YLpwaI3mtX6GKTOjDcyrBf3Tf0jHoPkU8Q/haSXc7d3kgTYfqMB1TtsWm8EURFeewzqVmpIQJ1BBTl30ylHFLOmXOjE9kFliyHO/m2M4A9yK3Oo7WXtFYDeP/ykrfCZJSAp/KieQ0ze/3xNXTfC2r1ghF0FZFc+LIn/Amdw1SaPEKepXjTNdc8aM9m2aciv+ShRV5wlpuhNp4vyZLTQ+5Ixo3qBch8llfqv7JPbxl3ucd6lkHuzJ7HL91UfEVaKCvyfdkY1REYByW5E/" >> /tmp/root/.ssh/known_hosts
+  echo "escorpion.it.uc3m.es ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCpec1Zhvhqsfa65w3M47ZeWKYbLsgCee+WHjgmEhaobC3dYm7FsIb+qLHv5KpZQW5CKiNoDMZI3c9mUELZsd89PnScvn0BvF+j7dsMvYc5DN/y20IUXwCwsW61c3/Gto2bsjG4K/LPA3WcBrRRHaBQyah4eo7bebeoeaQSoSFAFMzbnr3xlTEcCkrMG3MI5fD0EkQypcs6c6+jmeRA/hltXaBQ/iAhgBJyNkiUp/jKTUXBID2MySzjW6JdkumVYM2IKp+3s8dr4zQpfdvLB1uQBQaTauVpy6Y5QOK01I3AnlKw7p/YnyjelBp3CAOHZhUGKpfhjqdFdPrJnm/JUUN/" >> /tmp/root/.ssh/known_hosts
+  HOME=/tmp/root
+  chmod 777 /etc/archivos/* # 2> /tmp/log_errores # maximos privilegios a la carpeta de registro y guardamos en el log la respuesta (en blanco si ha cambiado los privilegios OK)
+  killall -9 sshfs || echo "$(date): no se ha matado ningun proceso sshfs existente" >> /etc/archivos/log_errores
+  
+  rm -r /overlay/mnt/ 
+  cd /mnt/
+  rm -r escorpion
+  ssh -i /root/.ssh/id_rsa wifi-radar@escorpion.it.uc3m.es 
+
+  # echo "Ejecutand prueba.sh..."
+  # sh /etc/archivos/prueba.sh
+  echo "Ejecutand tfg_ordenes.sh..."
+  sh /etc/archivos/tfg_ordenes.sh || echo "$(date): error al ejecutar el script principal de ordenes" >> /etc/archivos/log_errores 
+}
+
+stop() {
+  echo stop
+  killall tcpdump 2>/dev/null
+  killall -9 tcpdump 2>/dev/null
+  killall -9 sshfs 2>/dev/null
+  exit 0
+}
